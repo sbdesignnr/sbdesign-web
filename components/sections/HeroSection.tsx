@@ -786,10 +786,15 @@ function useAtmosphericCanvas(canvasRef: React.RefObject<HTMLCanvasElement | nul
     const ctx = canvas.getContext("2d")!;
     let raf: number;
     let t = 0;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const resize = () => {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width  = window.innerWidth  * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width  = window.innerWidth  + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
     window.addEventListener("resize", resize);
@@ -803,11 +808,11 @@ function useAtmosphericCanvas(canvasRef: React.RefObject<HTMLCanvasElement | nul
 
     const draw = () => {
       t++;
-      const w = canvas.width;
-      const h = canvas.height;
+      const w = canvas.width  / dpr;
+      const h = canvas.height / dpr;
 
       ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "#010a1a";
+      ctx.fillStyle = "#010818";
       ctx.fillRect(0, 0, w, h);
 
       orbs.forEach((orb) => {

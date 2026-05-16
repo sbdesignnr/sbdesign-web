@@ -69,7 +69,7 @@ export default function RootLayout({
       lang="sk"
       className={`${syne.variable} ${inter.variable} ${caveat.variable} ${cinzel.variable} h-full antialiased`}
     >
-      <body className="bg-black text-white font-body min-h-full flex flex-col overflow-x-hidden">
+      <body className="bg-black text-white font-body min-h-full flex flex-col">
         {children}
         <Footer />
       </body>

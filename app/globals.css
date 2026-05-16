@@ -47,18 +47,22 @@
   box-sizing: border-box;
 }
 
+html, body {
+  background: #010818;
+  overflow-x: hidden;
+  scroll-behavior: auto;
+}
+
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 body {
-  background-color: #000000;
+  min-height: 100vh;
   color: #ffffff;
   font-family: var(--font-body);
-  overflow-x: hidden;
 }
 
 /* ── Typography ───────────────────────────────────────────────────────────── */
@@ -127,4 +131,10 @@ h6 {
 
 .marquee-track:hover {
   animation-play-state: paused;
+}
+
+/* ── Orb outer glow (ServicesSection plasma orb) ──────────────────────────── */
+@keyframes orbOuterGlow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.04); }
 }
