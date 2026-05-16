@@ -1,404 +1,581 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ArrowUpRight, Building2, Globe, Briefcase, Zap, Monitor } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
-/* ─────────────────────────────────────────────────────────────────────────────
- * TEXT SANDWICH — 3 layers inside a positioned wrapper + UI below:
+/* ════════════════════════════════════════════════════════════════════════════
+ *  useTransparentImage — Canvas API pixel-stripping hook
  *
- *   z-0   SOLID TEXT  — brand gradient #0033CC→#0066FF→#00FFFF, behind hands
- *   z-10  HANDS       — opaque (no blend mode) → physically covers solid text
- *   z-20  HOLLOW TEXT — same coords, transparent fill + white/cyan stroke
- *                        Floats above hands → stroke always visible → 3-D illusion
- *   z-30  UI          — subtitle · CTA · trust logos, pointer-events-auto
+ *  Runs ONCE on mount: loads the source PNG, luminance-keys the black
+ *  background to alpha, then exports a transparent PNG blob URL.
+ *  After this hook returns, the browser composites a plain <img> at native
+ *  GPU speed — no per-frame canvas, no WebGL context lifecycle.
  *
- * No mix-blend-lighten on the hands — that was causing the solid text to bleed
- * through. Opaque hands genuinely occlude the gradient layer beneath them.
- * ─────────────────────────────────────────────────────────────────────────── */
+ *  Why this beats mix-blend-mode for the sandwich:
+ *    - mix-blend-mode forces a stacking context + compositor layer per frame
+ *    - real alpha lets <img> sit between two text layers cleanly with no
+ *      color contamination from the gradient underneath
+ * ════════════════════════════════════════════════════════════════════════════ */
+function useTransparentImage(src: string, threshold = 45): string | null {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
 
-/* ── Glitch keyframes ─────────────────────────────────────────────────────── */
-const GLITCH_L = {
-  opacity: [0.9, 0.75, 1, 0.8, 0.95, 1, 0.9],
-  x: [0, -2, 0, 2, 0, 0, 0],
-  filter: [
-    "brightness(1) saturate(1)",
-    "hue-rotate(160deg) brightness(1.4) saturate(2)",
-    "brightness(1) saturate(1)",
-    "hue-rotate(200deg) brightness(1.3) saturate(1.8)",
-    "brightness(1) saturate(1)",
-    "brightness(1) saturate(1)",
-    "brightness(1) saturate(1)",
-  ],
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width  = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
+      ctx.drawImage(img, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imageData.data;
+      /* Rec. 601 luma — gives a perceptually-correct brightness value.
+         Pixels darker than `threshold` get a quadratic alpha falloff so the
+         hand edges blend softly into transparency instead of hard-clipping. */
+      for (let i = 0; i < d.length; i += 4) {
+        const lum = (d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000;
+        if (lum < threshold) {
+          d[i + 3] = Math.round(Math.pow(lum / threshold, 2) * 255);
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+
+      canvas.toBlob((blob) => {
+        if (blob) {
+          objectUrl = URL.createObjectURL(blob);
+          setBlobUrl(objectUrl);
+        }
+      }, "image/png");
+    };
+    img.src = src;
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [src, threshold]);
+
+  return blobUrl;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+ *  Typography — both text layers share identical metrics so the outline
+ *  traces the gradient pixel-perfectly. Any divergence breaks the sandwich.
+ *  `whiteSpace: nowrap` keeps each word on one line at all viewports.
+ * ════════════════════════════════════════════════════════════════════════════ */
+const fillTextStyle: React.CSSProperties = {
+  fontFamily:           "Syne, sans-serif",
+  fontSize:             "clamp(120px, 18vw, 320px)",
+  fontWeight:           900,
+  lineHeight:           0.88,
+  letterSpacing:        "-0.03em",
+  textTransform:        "uppercase",
+  background:           "linear-gradient(160deg, #FFFFFF 0%, #FFFFFF 25%, #4DA6FF 55%, #0057FF 75%, #00D4FF 100%)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor:  "transparent",
+  backgroundClip:       "text",
+  filter:               "drop-shadow(0 0 40px rgba(0,87,255,0.6)) drop-shadow(0 0 80px rgba(0,212,255,0.25))",
+  userSelect:           "none",
+  pointerEvents:        "none",
+  whiteSpace:           "nowrap",
 };
 
-const GLITCH_R = {
-  opacity: [0.92, 1, 0.78, 0.95, 0.85, 1, 0.92],
-  x: [0, 2, 0, -2, 0, 0, 0],
-  filter: [
-    "brightness(1) saturate(1)",
-    "hue-rotate(240deg) brightness(1.4) saturate(1.8)",
-    "brightness(1) saturate(1)",
-    "hue-rotate(190deg) brightness(1.3) saturate(1.6)",
-    "brightness(1) saturate(1)",
-    "brightness(1) saturate(1)",
-    "brightness(1) saturate(1)",
-  ],
+const outlineTextStyle: React.CSSProperties = {
+  fontFamily:          "Syne, sans-serif",
+  fontSize:            "clamp(120px, 18vw, 320px)",
+  fontWeight:          900,
+  lineHeight:          0.88,
+  letterSpacing:       "-0.03em",
+  textTransform:       "uppercase",
+  WebkitTextFillColor: "transparent",
+  WebkitTextStroke:    "1px rgba(255, 255, 255, 0.18)",
+  userSelect:          "none",
+  pointerEvents:       "none",
+  whiteSpace:          "nowrap",
 };
 
-const IDLE_L: typeof GLITCH_L = { opacity: [1], x: [0], filter: ["brightness(1) saturate(1)"] };
-const IDLE_R: typeof GLITCH_R = { opacity: [1], x: [0], filter: ["brightness(1) saturate(1)"] };
+/* ════════════════════════════════════════════════════════════════════════════
+ *  LightningBolt — procedural SVG, recursive midpoint displacement
+ *
+ *  Algorithm: subdivide the line between two fingertips N times; at each
+ *  midpoint perturb perpendicularly by a random amount that decays with
+ *  depth. This is the canonical procedural-lightning recipe (Reed, GPU
+ *  Gems 2). One bolt + two branches + a wide blue glow underneath.
+ *
+ *  Render strategy: setAttribute on existing <path> nodes per rAF — no
+ *  React reconciliation in the hot loop. Flicker rhythm is irregular by
+ *  design (Math.random) so the eye reads it as electricity, not animation.
+ * ════════════════════════════════════════════════════════════════════════════ */
+interface LightningProps {
+  active: boolean;
+}
 
-const LOGOS = [
-  { Icon: Building2, label: "Real estate" },
-  { Icon: Globe,     label: "Tech"        },
-  { Icon: Briefcase, label: "Finance"     },
-  { Icon: Zap,       label: "Energy"      },
-  { Icon: Monitor,   label: "SaaS"        },
-] as const;
+function LightningBolt({ active }: LightningProps) {
+  const svgRef     = useRef<SVGSVGElement>(null);
+  const pathRef    = useRef<SVGPathElement>(null);
+  const branchRef1 = useRef<SVGPathElement>(null);
+  const branchRef2 = useRef<SVGPathElement>(null);
+  const glowRef    = useRef<SVGPathElement>(null);
+  const rafRef     = useRef<number>(0);
 
+  const generateLightningPoints = (
+    x1: number, y1: number,
+    x2: number, y2: number,
+    depth: number,
+    roughness = 0.5,
+  ): Array<[number, number]> => {
+    if (depth === 0) return [[x1, y1], [x2, y2]];
+
+    const midX   = (x1 + x2) / 2;
+    const midY   = (y1 + y2) / 2;
+    const dx     = x2 - x1;
+    const dy     = y2 - y1;
+    const length = Math.sqrt(dx * dx + dy * dy);
+
+    /* Perpendicular offset → jagged silhouette. Roughness halves per
+       recursion so the shape stays coherent at large scale.            */
+    const offset = (Math.random() - 0.5) * length * roughness;
+    const perpX  = -dy / length;
+    const perpY  =  dx / length;
+
+    const newMidX = midX + perpX * offset;
+    const newMidY = midY + perpY * offset;
+
+    const left  = generateLightningPoints(x1, y1, newMidX, newMidY, depth - 1, roughness * 0.65);
+    const right = generateLightningPoints(newMidX, newMidY, x2, y2, depth - 1, roughness * 0.65);
+
+    return [...left.slice(0, -1), ...right];
+  };
+
+  const pointsToPath = (points: Array<[number, number]>): string => {
+    if (points.length === 0) return "";
+    return points.reduce(
+      (acc, [x, y], i) => (i === 0 ? `M ${x} ${y}` : `${acc} L ${x} ${y}`),
+      "",
+    );
+  };
+
+  useEffect(() => {
+    if (!active || !svgRef.current || !pathRef.current) return;
+
+    /* Fingertip positions as % of SVG viewport.
+       Tune these multipliers if the bolt origin/target drifts off after
+       a future image swap.                                              */
+    const getCoords = () => {
+      const svg = svgRef.current!;
+      const w = svg.clientWidth;
+      const h = svg.clientHeight;
+      return {
+        x1: w * 0.395, y1: h * 0.50,
+        x2: w * 0.520, y2: h * 0.48,
+      };
+    };
+
+    let isVisible      = true;
+    let flickerTimeout = 0;
+
+    const scheduleFlicker = () => {
+      if (!active) return;
+
+      /* Visible burst: 2–5 frames @ 60fps = 33–83ms. Real lightning
+         arcs last 20–80ms which puts us right in the perceptual sweet
+         spot for "flash".                                              */
+      const visibleFrames = Math.floor(2 + Math.random() * 4);
+      isVisible = true;
+      let drawn = 0;
+
+      const drawFrame = () => {
+        if (!pathRef.current || !active) return;
+
+        const { x1, y1, x2, y2 } = getCoords();
+
+        if (isVisible && drawn < visibleFrames) {
+          const points = generateLightningPoints(x1, y1, x2, y2, 5, 0.45);
+          const d      = pointsToPath(points);
+
+          pathRef.current.setAttribute("d", d);
+          glowRef.current?.setAttribute("d", d);
+          pathRef.current.setAttribute("opacity", (0.7 + Math.random() * 0.3).toString());
+          glowRef.current?.setAttribute("opacity", (0.15 + Math.random() * 0.2).toString());
+
+          /* Branch 1 — splits at ~28 % along the bolt, falls downward */
+          if (branchRef1.current) {
+            const branchStart = points[Math.floor(points.length * 0.28)];
+            const branchEnd: [number, number] = [
+              branchStart[0] + (Math.random() - 0.3) * 80,
+              branchStart[1] + 30 + Math.random() * 50,
+            ];
+            const bPoints = generateLightningPoints(
+              branchStart[0], branchStart[1],
+              branchEnd[0],   branchEnd[1],   3, 0.5,
+            );
+            branchRef1.current.setAttribute("d", pointsToPath(bPoints));
+            branchRef1.current.setAttribute("opacity", (0.3 + Math.random() * 0.3).toString());
+          }
+
+          /* Branch 2 — splits at ~62 % along the bolt, rises upward */
+          if (branchRef2.current) {
+            const branchStart = points[Math.floor(points.length * 0.62)];
+            const branchEnd: [number, number] = [
+              branchStart[0] + (Math.random() - 0.7) * 70,
+              branchStart[1] - 20 - Math.random() * 40,
+            ];
+            const bPoints = generateLightningPoints(
+              branchStart[0], branchStart[1],
+              branchEnd[0],   branchEnd[1],   3, 0.5,
+            );
+            branchRef2.current.setAttribute("d", pointsToPath(bPoints));
+            branchRef2.current.setAttribute("opacity", (0.2 + Math.random() * 0.25).toString());
+          }
+
+          drawn++;
+          rafRef.current = requestAnimationFrame(drawFrame);
+        } else {
+          /* Dark gap between flashes — 60–200ms random pause */
+          pathRef.current?.setAttribute("opacity", "0");
+          glowRef.current?.setAttribute("opacity", "0");
+          branchRef1.current?.setAttribute("opacity", "0");
+          branchRef2.current?.setAttribute("opacity", "0");
+
+          flickerTimeout = window.setTimeout(
+            scheduleFlicker,
+            60 + Math.random() * 140,
+          );
+        }
+      };
+
+      rafRef.current = requestAnimationFrame(drawFrame);
+    };
+
+    flickerTimeout = window.setTimeout(
+      scheduleFlicker,
+      80 + Math.random() * 120,
+    );
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      clearTimeout(flickerTimeout);
+      pathRef.current?.setAttribute("opacity", "0");
+      glowRef.current?.setAttribute("opacity", "0");
+      branchRef1.current?.setAttribute("opacity", "0");
+      branchRef2.current?.setAttribute("opacity", "0");
+    };
+  }, [active]);
+
+  return (
+    <svg
+      ref={svgRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 25 }}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <filter id="lightning-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+        <filter id="lightning-core-glow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="6" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+
+      {/* Wide blue halo behind the bolt */}
+      <path
+        ref={glowRef}
+        stroke="#00AAFF"
+        strokeWidth="8"
+        fill="none"
+        opacity="0"
+        strokeLinecap="round"
+        filter="url(#lightning-core-glow)"
+      />
+
+      {/* Hairline branches */}
+      <path
+        ref={branchRef1}
+        stroke="#88DDFF"
+        strokeWidth="1"
+        fill="none"
+        opacity="0"
+        strokeLinecap="round"
+        filter="url(#lightning-glow)"
+      />
+      <path
+        ref={branchRef2}
+        stroke="#88DDFF"
+        strokeWidth="1"
+        fill="none"
+        opacity="0"
+        strokeLinecap="round"
+        filter="url(#lightning-glow)"
+      />
+
+      {/* White-hot main bolt */}
+      <path
+        ref={pathRef}
+        stroke="#FFFFFF"
+        strokeWidth="1.5"
+        fill="none"
+        opacity="0"
+        strokeLinecap="round"
+        filter="url(#lightning-glow)"
+      />
+    </svg>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+ *  HERO FORGE
+ * ════════════════════════════════════════════════════════════════════════════ */
 export default function HeroForge() {
-  const sectionRef  = useRef<HTMLElement>(null);
-  const halftoneRef = useRef<HTMLDivElement>(null);
-  const handsRef    = useRef<HTMLDivElement>(null);
-  const subRef      = useRef<HTMLParagraphElement>(null);
-  const ctaRef      = useRef<HTMLDivElement>(null);
-  const logosRef    = useRef<HTMLDivElement>(null);
+  const handsRef       = useRef<HTMLImageElement>(null);
+  const transparentSrc = useTransparentImage("/michelangelo_touch.png");
 
-  const [hovered, setHovered] = useState(false);
+  /* Mirror hover state into a ref so the polling closure inside the hover
+     useGSAP can read the latest value without rebinding.                  */
+  const [isHovered, setIsHovered] = useState(false);
+  const isHoveredRef              = useRef(false);
 
-  /* ── GSAP entrance + halftone parallax ─────────────────────────────────── */
+  /* ── Idle glitch burst — fires every 4–7s, total ~320ms ───────────────
+   *  Background ambient nervousness. Coexists with the hover glitch:
+   *  GSAP queues them on the same target; the hover loop overwrites
+   *  whenever it wakes up, then power3.out returns to clean state.       */
   useGSAP(
     () => {
-      const section = sectionRef.current;
-      if (!section) return;
+      if (!handsRef.current || !transparentSrc) return;
 
-      const tl = gsap.timeline({ delay: 0.1, defaults: { ease: "power4.out" } });
+      const tl = gsap.timeline({
+        repeat: -1,
+        repeatDelay: 4 + Math.random() * 3,
+      });
 
-      /* Both .sandwich-text elements animate together → always in sync */
-      tl.fromTo(
-        ".sandwich-text",
-        { clipPath: "inset(0 0 100% 0)", y: 50 },
-        { clipPath: "inset(0 0 0% 0)", y: 0, duration: 0.9 },
-      )
-        .fromTo(
-          handsRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 1.8, ease: "power2.out" },
-          0.1,
-        )
-        .fromTo(
-          [subRef.current, ctaRef.current],
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.65, stagger: 0.12 },
-          0.55,
-        )
-        .fromTo(
-          logosRef.current,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.5 },
-          0.78,
-        );
-
-      /* Halftone parallax */
-      const onMove = (e: MouseEvent) => {
-        const nx = (e.clientX / window.innerWidth  - 0.5) * 2;
-        const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-        gsap.to(halftoneRef.current, {
-          backgroundPosition: `${-nx * 20}px ${-ny * 20}px`,
-          duration: 1.8, ease: "power2.out",
+      tl.to(handsRef.current, {
+          duration: 0.05, skewX: 10, x: 8,
+          filter: "hue-rotate(80deg) brightness(1.5)", ease: "steps(1)",
+        })
+        .to(handsRef.current, {
+          duration: 0.04, skewX: -6, x: -12,
+          filter: "hue-rotate(200deg) brightness(0.6)", ease: "steps(1)",
+        })
+        .to(handsRef.current, {
+          duration: 0.05, skewX: 2, x: 4,
+          filter: "hue-rotate(30deg) brightness(1.3)", ease: "steps(1)",
+        })
+        .to(handsRef.current, {
+          duration: 0.18, skewX: 0, x: 0,
+          filter: "none", ease: "power3.out",
         });
-      };
-      const onLeave = () =>
-        gsap.to(halftoneRef.current, {
-          backgroundPosition: "0px 0px",
-          duration: 2.4, ease: "power2.inOut",
-        });
-
-      section.addEventListener("mousemove", onMove);
-      section.addEventListener("mouseleave", onLeave);
-      return () => {
-        section.removeEventListener("mousemove", onMove);
-        section.removeEventListener("mouseleave", onLeave);
-      };
     },
-    { scope: sectionRef },
+    { dependencies: [transparentSrc], revertOnUpdate: true },
   );
 
-  /* ── Glitch + scan transition helpers ──────────────────────────────────── */
-  const glitchTL = { duration: 1.8, repeat: Infinity, ease: "easeInOut" as const };
-  const glitchTR = { duration: 2.2, repeat: Infinity, ease: "easeInOut" as const, delay: 0.4 };
-  const idleT    = { duration: 0.5 };
+  /* ── Hover glitch — irregular signal-loss while pointer is over hands ─
+   *  A 50ms poll wakes the loop on first hover. Each glitch sequence
+   *  re-randomises frame durations, so the eye never picks up a pattern.
+   *  Pause between sequences is also randomised (80–220ms).              */
+  useGSAP(
+    () => {
+      if (!handsRef.current) return;
+      const el       = handsRef.current;
+      let active     = false;
+      let nextTimer  = 0;
 
-  const scanT  = (d: number) =>
-    hovered ? { duration: d, repeat: Infinity, ease: "linear" as const } : { duration: 0.4 };
-  const sliceT = (d: number) =>
-    hovered ? { duration: d, repeat: Infinity, ease: "easeInOut" as const } : {};
+      const runGlitch = () => {
+        if (!isHoveredRef.current) {
+          gsap.to(el, {
+            duration: 0.15,
+            opacity:  1,
+            skewX:    0,
+            x:        0,
+            filter:   "none",
+            ease:     "power2.out",
+          });
+          active = false;
+          return;
+        }
+
+        active = true;
+
+        const glitchFrames = [
+          { opacity: 0.85, skewX:  8, x:   6, filter: "hue-rotate(60deg) brightness(1.6) saturate(2)", dur: 0.04 + Math.random() * 0.03 },
+          { opacity: 1,    skewX:  0, x:   0, filter: "none",                                           dur: 0.05 + Math.random() * 0.04 },
+          { opacity: 0.7,  skewX: -5, x:  -9, filter: "hue-rotate(190deg) brightness(0.7)",             dur: 0.03 + Math.random() * 0.02 },
+          { opacity: 0.9,  skewX:  3, x:   4, filter: "brightness(1.4) saturate(1.5)",                  dur: 0.06 + Math.random() * 0.04 },
+          { opacity: 0,    skewX:  0, x: -14, filter: "none",                                           dur: 0.02 },
+          { opacity: 1,    skewX:  0, x:   0, filter: "none",                                           dur: 0.08 + Math.random() * 0.06 },
+        ];
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            const pause = 80 + Math.random() * 140;
+            nextTimer  = window.setTimeout(runGlitch, pause);
+          },
+        });
+
+        glitchFrames.forEach((frame) => {
+          tl.to(el, {
+            duration: frame.dur,
+            opacity:  frame.opacity,
+            skewX:    frame.skewX,
+            x:        frame.x,
+            filter:   frame.filter,
+            ease:     "steps(1)",
+          });
+        });
+      };
+
+      const checkHover = () => {
+        if (isHoveredRef.current && !active) runGlitch();
+      };
+
+      const intervalId = window.setInterval(checkHover, 50);
+
+      return () => {
+        window.clearInterval(intervalId);
+        window.clearTimeout(nextTimer);
+        gsap.killTweensOf(el);
+      };
+    },
+    { dependencies: [] },
+  );
 
   return (
     <section
-      ref={sectionRef}
-      aria-label="Hero – SBDESIGN"
-      className="relative w-full min-h-screen overflow-hidden bg-black flex flex-col items-center"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      aria-label="Hero — SBDESIGN"
+      className="relative flex items-center justify-center min-h-screen bg-black overflow-hidden"
     >
 
-      {/* Halftone dot-grid parallax — global background */}
+      {/* ── z-[1] · Background image (pozadie modre.jpg) ─────────────────
+       *  Plain <img> + object-cover beats CSS background-image here:
+       *  the browser hands the decode to a separate thread and we get a
+       *  real <img> compositor layer (cheap GPU upload, no repaint).      */}
+      <div className="absolute inset-0 z-[1]">
+        <img
+          src="/pozadie modre.jpg"
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="w-full h-full object-cover object-center"
+        />
+
+        {/* ── z-[2] · Dark overlay — readability gradient ──────────────── */}
+        <div
+          aria-hidden
+          className="absolute inset-0 z-[2]"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.65) 100%)",
+          }}
+        />
+      </div>
+
+      {/* ── Radial vignette (z-5) ─────────────────────────────────────────
+       *  Sits BELOW the sandwich so it darkens the page background but
+       *  never dims the gradient text or the hands above.                 */}
       <div
-        ref={halftoneRef}
-        aria-hidden="true"
-        className="absolute inset-0 z-0 pointer-events-none will-change-[background-position]"
+        aria-hidden
+        className="absolute inset-0 pointer-events-none z-[5]"
         style={{
-          backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)",
-          backgroundSize: "22px 22px",
+          background:
+            "radial-gradient(ellipse 80% 70% at 50% 50%, transparent 30%, rgba(0,0,0,0.92) 100%)",
         }}
       />
 
-      {/* ══════════════════════════════════════════════════════════════════════
-       *  THREE-LAYER TEXT SANDWICH
-       *  All three divs are absolute inset-0 inside this wrapper so they
-       *  occupy the exact same screen area and the z-values are unambiguous.
-       * ════════════════════════════════════════════════════════════════════ */}
-      <div className="relative w-full h-[80vh] md:h-screen flex items-center justify-center overflow-hidden mt-[-5rem] md:mt-0">
+      {/* ── LAYER 1 · z-10 · Gradient FILL text (static) ─────────────────
+       *  The "bread" the hands sit on top of. Never animated — keeping
+       *  this static lets the browser cache it as a single texture.       */}
+      <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none select-none text-center">
+        <span style={fillTextStyle}>
+          DIGITÁLNY<br />MARKETING
+        </span>
+      </div>
 
-        {/* ── LAYER 1 (z-0): SOLID GRADIENT TEXT — behind the hands ─────── */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none">
-          <h1
-            className="sandwich-text text-[14vw] md:text-[11vw] font-bold font-syne leading-[0.85] tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#0033CC] via-[#0066FF] to-[#00FFFF] drop-shadow-[0_0_50px_rgba(0,102,255,0.6)] text-center uppercase"
-          >
-            Digitálny<br />Marketing.
-          </h1>
-        </div>
-
-        {/* ── LAYER 2 (z-10): HANDS — opaque, physically covers Layer 1 ─── */}
-        {/*
-         *  No mix-blend-lighten here. Opaque images occlude the gradient text
-         *  beneath them cleanly. Framer Motion handles breathing + glitch.
-         *  GSAP fades this ref from opacity:0 → 1 on entrance.
-         */}
-        <div
-          ref={handsRef}
-          aria-hidden="true"
-          style={{ opacity: 0 }}
-          className="absolute inset-0 z-10 pointer-events-none flex"
-        >
-
-          {/* Left hand */}
-          <motion.div
-            animate={{ y: [-4, 6, -4] }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative w-1/2 h-full overflow-hidden"
-          >
-            <motion.div
-              className="absolute inset-0"
-              animate={hovered ? GLITCH_L : IDLE_L}
-              transition={hovered ? glitchTL : idleT}
-            >
-              <img
-                src="/michelangelo_touch.png"
-                alt=""
-                fetchPriority="high"
-                className="absolute left-0 top-1/2 -translate-y-1/2 w-[100vw] max-w-none h-auto"
-                draggable={false}
-              />
-            </motion.div>
-
-            {/* Cyan scan lines */}
-            <motion.div
-              aria-hidden="true"
-              className="absolute inset-0 pointer-events-none"
-              animate={
-                hovered
-                  ? { opacity: [0, 0.28, 0.06, 0.32, 0, 0.18, 0], backgroundPositionY: ["0%", "100%"] }
-                  : { opacity: 0 }
-              }
-              transition={scanT(3.6)}
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,255,0.09) 3px, rgba(0,255,255,0.09) 4px)",
-                backgroundSize: "100% 8px",
-              }}
-            />
-
-            {/* Pixel-slice artefact */}
-            <motion.div
-              aria-hidden="true"
-              className="absolute inset-0 overflow-hidden pointer-events-none"
-              animate={hovered ? { opacity: [0, 0, 0, 0, 0.65, 0, 0, 0] } : { opacity: 0 }}
-              transition={sliceT(2.9)}
-              style={{ clipPath: "inset(32% 0 54% 0)" }}
-            >
-              <img
-                src="/michelangelo_touch.png"
-                alt=""
-                style={{
-                  position: "absolute", left: 0, top: "50%",
-                  transform: "translateY(-50%) translateX(18px)",
-                  width: "100vw", maxWidth: "none", height: "auto",
-                  filter: "hue-rotate(180deg) brightness(1.6)",
-                }}
-                draggable={false}
-              />
-            </motion.div>
-          </motion.div>
-
-          {/* Right hand */}
-          <motion.div
-            animate={{ y: [-6, 4, -6] }}
-            transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-            className="relative w-1/2 h-full overflow-hidden"
-          >
-            <motion.div
-              className="absolute inset-0"
-              animate={hovered ? GLITCH_R : IDLE_R}
-              transition={hovered ? glitchTR : idleT}
-            >
-              <img
-                src="/michelangelo_touch.png"
-                alt=""
-                fetchPriority="high"
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-[100vw] max-w-none h-auto"
-                draggable={false}
-              />
-            </motion.div>
-
-            {/* Magenta scan lines */}
-            <motion.div
-              aria-hidden="true"
-              className="absolute inset-0 pointer-events-none"
-              animate={
-                hovered
-                  ? { opacity: [0.22, 0, 0.3, 0.05, 0.24, 0], backgroundPositionY: ["100%", "0%"] }
-                  : { opacity: 0 }
-              }
-              transition={scanT(4.4)}
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,0,255,0.09) 3px, rgba(255,0,255,0.09) 4px)",
-                backgroundSize: "100% 8px",
-              }}
-            />
-
-            {/* Pixel-slice artefact */}
-            <motion.div
-              aria-hidden="true"
-              className="absolute inset-0 overflow-hidden pointer-events-none"
-              animate={hovered ? { opacity: [0, 0, 0, 0.6, 0, 0, 0, 0] } : { opacity: 0 }}
-              transition={sliceT(3.5)}
-              style={{ clipPath: "inset(51% 0 31% 0)" }}
-            >
-              <img
-                src="/michelangelo_touch.png"
-                alt=""
-                style={{
-                  position: "absolute", right: 0, top: "50%",
-                  transform: "translateY(-50%) translateX(-18px)",
-                  width: "100vw", maxWidth: "none", height: "auto",
-                  filter: "hue-rotate(270deg) brightness(1.6)",
-                }}
-                draggable={false}
-              />
-            </motion.div>
-          </motion.div>
-
-          {/* Data arc glow — faulty connection at the fingertip gap */}
-          <motion.div
-            aria-hidden="true"
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-            animate={
-              hovered
-                ? { opacity: [0, 0.6, 0.1, 0.75, 0, 0.5, 0.15, 0], scale: [0.8, 1.1, 0.9, 1.3, 0.85, 1.05, 0.9, 0.8] }
-                : { opacity: 0, scale: 0.8 }
-            }
-            transition={hovered ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : { duration: 0.6 }}
+      {/* ── LAYER 2 · z-20 · Hands (transparent PNG, animated) ───────────
+       *  Float wrapper is a separate <motion.div> so the continuous y/x
+       *  transform never collides with GSAP's glitch transform on the
+       *  inner <img>. Two independent transform owners = zero contention.
+       *  pointer-events-auto so the hover glitch can be triggered.        */}
+      <motion.div
+        className="absolute inset-0 z-[20] flex items-center justify-center pointer-events-auto"
+        onMouseEnter={() => {
+          isHoveredRef.current = true;
+          setIsHovered(true);
+        }}
+        onMouseLeave={() => {
+          isHoveredRef.current = false;
+          setIsHovered(false);
+        }}
+        animate={{ y: [0, -16, 0], x: [0, 3, -2, 0] }}
+        transition={{
+          y: { duration: 5.5, ease: "easeInOut", repeat: Infinity },
+          x: { duration: 8,   ease: "easeInOut", repeat: Infinity },
+        }}
+        style={{ willChange: "transform" }}
+      >
+        {transparentSrc && (
+          <img
+            ref={handsRef}
+            src={transparentSrc}
+            alt=""
+            aria-hidden
+            draggable={false}
             style={{
-              width: "220px", height: "220px", borderRadius: "50%",
-              background:
-                "radial-gradient(circle, rgba(0,255,255,0.95) 0%, rgba(0,180,255,0.45) 35%, rgba(0,102,255,0.2) 65%, transparent 80%)",
-              filter: "blur(14px)",
+              width:          "100vw",
+              maxWidth:       "none",
+              height:         "70vh",
+              objectFit:      "cover",
+              objectPosition: "center center",
+              willChange:     "transform, filter",
             }}
           />
-        </div>
+        )}
+      </motion.div>
 
-        {/* ── LAYER 3 (z-20): HOLLOW STROKE TEXT — above the hands ─────── */}
-        {/*
-         *  Transparent fill + white/cyan stroke.
-         *  Sits above the hands → stroke outline is always visible,
-         *  even where hands completely cover the solid gradient text.
-         *  This recreates the letterform contour above the hands → 3-D illusion.
-         */}
-        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none select-none">
-          <h1
-            aria-hidden="true"
-            className={`sandwich-text text-[14vw] md:text-[11vw] font-bold font-syne leading-[0.85] tracking-tighter text-transparent text-center uppercase transition-all duration-500 ${
-              hovered
-                ? "[-webkit-text-stroke:2px_rgba(0,255,255,0.85)]"
-                : "[-webkit-text-stroke:2px_rgba(255,255,255,0.50)]"
-            }`}
-          >
-            Digitálny<br />Marketing.
-          </h1>
-        </div>
+      {/* ── z-[25] · Procedural lightning between fingertips (hover-only) */}
+      <LightningBolt active={isHovered} />
 
+      {/* ── LAYER 3 · z-30 · Outline text (static) ───────────────────────
+       *  Identical metrics to layer 1 so the white hairline traces the
+       *  exact gradient silhouette above the hands → sandwich complete.   */}
+      <div
+        aria-hidden
+        className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none select-none text-center"
+      >
+        <span style={outlineTextStyle}>
+          DIGITÁLNY<br />MARKETING
+        </span>
       </div>
-      {/* ── END TEXT SANDWICH ─────────────────────────────────────────────── */}
 
-      {/* ══════════════════════════════════════════════════════════════════════
-       *  z-30 ─ UI — subtitle · CTA · trust logos
-       *  Sits in normal document flow, below the sandwich wrapper.
-       * ════════════════════════════════════════════════════════════════════ */}
-      <div className="relative z-30 flex flex-col items-center justify-center mt-8 px-4 pb-14 pointer-events-auto w-full">
+      {/* ── UI · z-40 ─────────────────────────────────────────────────── */}
+      <div className="absolute inset-x-0 bottom-16 z-40 flex flex-col items-center gap-6">
 
-        <p
-          ref={subRef}
-          style={{ opacity: 0 }}
-          className="font-inter font-light text-gray-300 text-lg md:text-xl max-w-2xl text-center tracking-wide leading-relaxed drop-shadow-lg"
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.4, ease: "easeOut" }}
+          style={{
+            fontFamily:    "Syne, sans-serif",
+            letterSpacing: "0.28em",
+            fontSize:      "13px",
+            color:         "rgba(0, 212, 255, 0.5)",
+            textTransform: "uppercase",
+          }}
         >
-          Prémiové digitálne monumenty na mieru.{" "}
-          <span className="text-white font-medium">Nekompromisná kvalita</span>
-          , unikátny dizajn.
-        </p>
+          Webové riešenia na mieru
+        </motion.p>
 
-        <div
-          ref={ctaRef}
-          style={{ opacity: 0 }}
-          className="mt-10 pointer-events-auto"
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          style={{ willChange: "transform" }}
         >
-          <button
-            type="button"
-            className="group flex items-center gap-3 rounded-full bg-black border border-white/20 text-white px-10 py-5 font-inter font-black text-sm uppercase tracking-widest transition-all duration-300 hover:scale-110 hover:border-blue-500/70 hover:shadow-[0_0_32px_rgba(0,102,255,0.3),0_0_64px_rgba(0,102,255,0.12)]"
-          >
-            Začať projekt
-            <ArrowUpRight
-              size={17}
-              className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            />
-          </button>
-        </div>
-
-        <div
-          ref={logosRef}
-          style={{ opacity: 0 }}
-          className="mt-12 flex flex-col items-center gap-5"
-        >
-          <p className="font-inter text-[9px] font-semibold uppercase tracking-[0.35em] text-white/30">
-            Dôverujú nám lídri z odvetví
-          </p>
-          <div className="flex items-center gap-10 sm:gap-14">
-            {LOGOS.map(({ Icon, label }) => (
-              <Icon
-                key={label}
-                aria-label={label}
-                size={20}
-                className="text-white/25 transition-colors duration-300 hover:text-white/60"
-              />
-            ))}
-          </div>
-        </div>
+          <ChevronDown size={20} color="#0057FF" strokeWidth={1.5} />
+        </motion.div>
 
       </div>
 
