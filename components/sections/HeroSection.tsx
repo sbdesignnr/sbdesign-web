@@ -12,98 +12,6 @@ import gsap from "gsap";
  * ════════════════════════════════════════════════════════════════════════════ */
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-/* ────────────────────────────────────────────────────────────────────────────
- *  HoverHandlers — typed shape for hover-aware cursor reaction.
- *  Both the embedded Navigation and the bottom bar consume it.
- * ──────────────────────────────────────────────────────────────────────────── */
-interface HoverHandlers {
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}
-
-/* ════════════════════════════════════════════════════════════════════════════
- *  CustomCursor — dot follows exactly, ring lerps with 0.10 factor.
- *  The dot uses inline state because it must be pixel-perfect every frame
- *  the cursor is moving; the ring uses rAF + ref writes to avoid React
- *  reconciles on every mouse move.
- *
- *  isHover prop expands the ring + fades the dot.
- * ════════════════════════════════════════════════════════════════════════════ */
-function CustomCursor({ isHover }: { isHover: boolean }) {
-  const target  = useRef({ x: -50, y: -50 });
-  const current = useRef({ x: -50, y: -50 });
-  const ringRef = useRef<HTMLDivElement>(null);
-  const dotRef  = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      target.current.x = e.clientX;
-      target.current.y = e.clientY;
-      /* Dot is 1:1 with the cursor — set its transform directly here so
-         we don't pay for React state per mousemove (60–120 hz).         */
-      if (dotRef.current) {
-        dotRef.current.style.transform =
-          `translate(${e.clientX - 3}px, ${e.clientY - 3}px)`;
-      }
-    };
-
-    window.addEventListener("mousemove", onMove, { passive: true });
-
-    let raf = 0;
-    const loop = () => {
-      current.current.x += (target.current.x - current.current.x) * 0.10;
-      current.current.y += (target.current.y - current.current.y) * 0.10;
-      const size = isHover ? 26 : 16; // 52px or 32px → half for centering
-      if (ringRef.current) {
-        ringRef.current.style.transform =
-          `translate(${current.current.x - size}px, ${current.current.y - size}px)`;
-      }
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(raf);
-    };
-  }, [isHover]);
-
-  return (
-    <>
-      <div
-        ref={dotRef}
-        aria-hidden
-        className="fixed top-0 left-0 pointer-events-none"
-        style={{
-          zIndex:           9999,
-          width:            "6px",
-          height:           "6px",
-          borderRadius:     "50%",
-          background:       "#00D4FF",
-          opacity:          isHover ? 0 : 1,
-          transition:       "opacity 0.2s ease",
-          willChange:       "transform",
-        }}
-      />
-      <div
-        ref={ringRef}
-        aria-hidden
-        className="fixed top-0 left-0 pointer-events-none"
-        style={{
-          zIndex:       9999,
-          width:        isHover ? "52px" : "32px",
-          height:       isHover ? "52px" : "32px",
-          borderRadius: "50%",
-          border:       `1px solid rgba(0,212,255,${isHover ? 0.7 : 0.4})`,
-          background:   "transparent",
-          transition:   "width 0.25s ease, height 0.25s ease, border-color 0.25s ease",
-          willChange:   "transform",
-        }}
-      />
-    </>
-  );
-}
-
 /* ════════════════════════════════════════════════════════════════════════════
  *  Navigation — fixed top, transparent → blurred on scroll > 60px.
  *  Logo uses the ⬡ hex glyph; per spec, no rounded corners on CTA.
@@ -116,12 +24,10 @@ const NAV_LINKS = [
 ] as const;
 
 function Navigation({
-  hover,
   isMobile,
   menuOpen,
   onMenuToggle,
 }: {
-  hover:        HoverHandlers;
   isMobile:     boolean;
   menuOpen:     boolean;
   onMenuToggle: () => void;
@@ -164,7 +70,6 @@ function Navigation({
       <a
         href="/"
         aria-label="SB DESIGN — domov"
-        {...hover}
         style={{ flexShrink: 0, zIndex: 2, display: "inline-flex", alignItems: "center" }}
       >
         <img
@@ -184,7 +89,6 @@ function Navigation({
           <li key={label}>
             <a
               href={href}
-              {...hover}
               className="transition-colors duration-200"
               style={{
                 fontFamily:    "ui-monospace, SFMono-Regular, Menlo, monospace",
@@ -194,8 +98,8 @@ function Navigation({
                 color:         "rgba(255,255,255,0.4)",
                 whiteSpace:    "nowrap",
               }}
-              onMouseEnter={(e) => { hover.onMouseEnter(); e.currentTarget.style.color = "rgba(255,255,255,0.9)"; }}
-              onMouseLeave={(e) => { hover.onMouseLeave(); e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.9)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
             >
               {label}
             </a>
@@ -210,8 +114,8 @@ function Navigation({
         ) : (
           <motion.a
             href="#kontakt"
-            onMouseEnter={() => { hover.onMouseEnter(); setCtaHovered(true); }}
-            onMouseLeave={() => { hover.onMouseLeave(); setCtaHovered(false); }}
+            onMouseEnter={() => { setCtaHovered(true); }}
+            onMouseLeave={() => { setCtaHovered(false); }}
             style={{
               display:        "flex",
               alignItems:     "center",
@@ -222,7 +126,6 @@ function Navigation({
               borderRadius:   0,
               position:       "relative",
               overflow:       "hidden",
-              cursor:         "none",
               transition:     "border-color 0.25s ease, background 0.25s ease",
             }}
           >
@@ -310,7 +213,6 @@ function Hamburger({ open, onToggle }: { open: boolean; onToggle: () => void }) 
         padding:        "8px",
         background:     "transparent",
         border:         "none",
-        cursor:         "none",
         alignItems:     "flex-start",
       }}
     >
@@ -1014,7 +916,6 @@ function CTAButton() {
         backdropFilter:       "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
         position:             "relative",
-        cursor:               "none",
         textDecoration:       "none",
         borderRadius:         0,
         overflow:             "hidden",
@@ -1089,12 +990,6 @@ function CTAButton() {
  * ════════════════════════════════════════════════════════════════════════════ */
 
 export default function HeroSection() {
-  const [cursorHover, setCursorHover] = useState(false);
-  const hover: HoverHandlers = {
-    onMouseEnter: () => setCursorHover(true),
-    onMouseLeave: () => setCursorHover(false),
-  };
-
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -1168,12 +1063,8 @@ export default function HeroSection() {
 
   return (
     <>
-      {/* Fixed custom cursor — sits above everything */}
-      <CustomCursor isHover={cursorHover} />
-
       {/* Fixed navigation */}
       <Navigation
-        hover={hover}
         isMobile={isMobile}
         menuOpen={menuOpen}
         onMenuToggle={() => setMenuOpen((v) => !v)}
@@ -1188,7 +1079,7 @@ export default function HeroSection() {
         id="hero"
         aria-label="Hero — SB DESIGN"
         className="relative w-full min-h-screen"
-        style={{ cursor: "none" }}
+        style={{}}
       >
 
         {/* ── z-0 · Atmospheric canvas background ─────────────────────── */}
@@ -1359,7 +1250,6 @@ export default function HeroSection() {
               {/* Line 2: email */}
               <a
                 href="mailto:biben@sbdesign.sk"
-                {...hover}
                 className="transition-all duration-200"
                 style={{
                   fontFamily:     "Syne, sans-serif",
@@ -1370,14 +1260,12 @@ export default function HeroSection() {
                   textDecoration: "none",
                 }}
                 onMouseEnter={(e) => {
-                  hover.onMouseEnter();
                   e.currentTarget.style.color = "rgba(255,255,255,0.85)";
                   e.currentTarget.style.textDecoration = "underline";
                   e.currentTarget.style.textUnderlineOffset = "3px";
                   e.currentTarget.style.textDecorationColor = "rgba(0,212,255,0.5)";
                 }}
                 onMouseLeave={(e) => {
-                  hover.onMouseLeave();
                   e.currentTarget.style.color = "rgba(255,255,255,0.45)";
                   e.currentTarget.style.textDecoration = "none";
                 }}
