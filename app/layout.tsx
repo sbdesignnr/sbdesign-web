@@ -7,7 +7,6 @@ import "./globals.css";
 // import IntroLoader  from "@/components/sections/IntroLoader";
 // import Navigation   from "@/components/layout/Navigation";
 // import CustomCursor from "@/components/ui/CustomCursor";
-import Footer from "@/components/layout/Footer";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -71,7 +70,6 @@ export default function RootLayout({
     >
       <body className="bg-black text-white font-body min-h-full flex flex-col">
         {children}
-        <Footer />
       </body>
     </html>
   );
