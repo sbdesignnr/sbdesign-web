@@ -1,75 +1,75 @@
-// FILE: app/layout.tsx
-import type { Metadata } from "next";
-import { Syne, Inter, Caveat, Cinzel } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Syne, Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
-// Commented out — Navigation and CustomCursor are now embedded in HeroSection.
-// import IntroLoader  from "@/components/sections/IntroLoader";
-// import Navigation   from "@/components/layout/Navigation";
-// import CustomCursor from "@/components/ui/CustomCursor";
+import { site } from "@/lib/site";
+import SmoothScroll from "@/components/providers/SmoothScroll";
+import Background from "@/components/three/Background";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import CookieConsent from "@/components/ui/CookieConsent";
 
-const syne = Syne({
-  subsets: ["latin"],
-  variable: "--font-syne",
-  display:  "swap",
-});
-
-const inter = Inter({
-  subsets:  ["latin"],
-  variable: "--font-inter",
-  display:  "swap",
-});
-
-const caveat = Caveat({
-  subsets:  ["latin"],
-  variable: "--font-caveat",
-  display:  "swap",
-});
-
-const cinzel = Cinzel({
-  subsets:  ["latin"],
-  variable: "--font-cinzel",
-  display:  "swap",
-  weight:   ["400", "500", "700"],
-});
+const syne = Syne({ subsets: ["latin"], variable: "--font-syne", display: "swap", weight: ["500", "600", "700", "800"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["400", "500"] });
+const serif = Instrument_Serif({ subsets: ["latin"], variable: "--font-instrument", display: "swap", weight: "400", style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
   title: {
-    default:  "SB DESIGN – Web Developer & Designer",
-    template: "%s | SB DESIGN",
+    default: `${site.name} — ${site.tagline}`,
+    template: `%s — ${site.name}`,
   },
-  description:
-    "Prémiový web developer a dizajnér. Vytváram rýchle, moderné a vizuálne výnimočné webové aplikácie.",
-  keywords: ["web developer", "web dizajn", "Next.js", "SB DESIGN"],
-  authors:  [{ name: "SB DESIGN" }],
-  creator:  "SB DESIGN",
-  metadataBase: new URL("https://sbdesign.sk"),
+  description: site.shortPitch,
+  keywords: ["web dizajn", "tvorba webov", "web na mieru", "e-shop", "Meta Ads", "Google Ads", "Next.js", "Nitra", "SB Design"],
+  authors: [{ name: site.founder }],
+  creator: site.founder,
   openGraph: {
-    type:        "website",
-    locale:      "sk_SK",
-    url:         "https://sbdesign.sk",
-    siteName:    "SB DESIGN",
-    title:       "SB DESIGN – Web Developer & Designer",
-    description: "Prémiový web developer a dizajnér.",
+    type: "website",
+    locale: "sk_SK",
+    url: site.url,
+    siteName: site.name,
+    title: `${site.name} — ${site.tagline}`,
+    description: site.shortPitch,
   },
-  twitter: {
-    card:        "summary_large_image",
-    title:       "SB DESIGN – Web Developer & Designer",
-    description: "Prémiový web developer a dizajnér.",
-  },
+  twitter: { card: "summary_large_image", title: `${site.name} — ${site.tagline}`, description: site.shortPitch },
   robots: { index: true, follow: true },
+  alternates: { canonical: site.url },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export const viewport: Viewport = {
+  themeColor: "#04060c",
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: site.name,
+    description: site.shortPitch,
+    url: site.url,
+    email: site.email,
+    telephone: site.phone,
+    founder: { "@type": "Person", name: site.founder },
+    address: { "@type": "PostalAddress", streetAddress: "Mostná 42", postalCode: "949 01", addressLocality: "Nitra", addressCountry: "SK" },
+    geo: { "@type": "GeoCoordinates", latitude: site.geo.lat, longitude: site.geo.lng },
+    areaServed: "SK",
+    priceRange: "€€",
+  };
+
   return (
-    <html
-      lang="sk"
-      className={`${syne.variable} ${inter.variable} ${caveat.variable} ${cinzel.variable} h-full antialiased`}
-    >
-      <body className="bg-black text-white font-body min-h-full flex flex-col">
-        {children}
+    <html lang="sk" className={`${syne.variable} ${inter.variable} ${mono.variable} ${serif.variable}`}>
+      <body className="antialiased">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <Background />
+        <SmoothScroll>
+          <Header />
+          {children}
+          <Footer />
+        </SmoothScroll>
+        <CookieConsent />
       </body>
     </html>
   );

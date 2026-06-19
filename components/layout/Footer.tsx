@@ -1,403 +1,131 @@
-'use client'
-import { useState } from 'react'
+"use client";
 
-const navLinks = [
-  { label: 'Domov', href: '/' },
-  { label: 'Služby', href: '#sluzby' },
-  { label: 'Portfólio', href: '#portfolio' },
-  { label: 'Proces', href: '#proces' },
-  { label: 'Kontakt', href: '#kontakt' },
-]
-
-const serviceLinks = [
-  { label: 'Webstránky', href: '#sluzby' },
-  { label: 'E-shopy', href: '#sluzby' },
-  { label: 'Meta & Google Ads', href: '#sluzby' },
-]
-
-const labelStyle: React.CSSProperties = {
-  fontFamily: 'monospace',
-  fontSize: '9px',
-  letterSpacing: '0.25em',
-  color: 'rgba(255,255,255,0.2)',
-  textTransform: 'uppercase',
-  display: 'block',
-  marginBottom: '16px',
-}
-
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <a
-      href={href}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        fontFamily: 'Syne, sans-serif',
-        fontWeight: 400,
-        fontSize: '14px',
-        color: hovered ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)',
-        textDecoration: 'none',
-        transform: hovered ? 'translateX(4px)' : 'translateX(0)',
-        transition: 'all 0.2s',
-        display: 'inline-block',
-      }}
-    >
-      {children}
-    </a>
-  )
-}
-
-function SocialIcon({
-  href,
-  children,
-}: {
-  href: string
-  children: React.ReactNode
-}) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        width: '32px',
-        height: '32px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: `1px solid ${hovered ? 'rgba(0,87,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
-        color: hovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)',
-        transition: 'all 0.2s',
-        flexShrink: 0,
-      }}
-    >
-      {children}
-    </a>
-  )
-}
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { site, nav, socials, legalLinks } from "@/lib/site";
+import SocialIcon from "@/components/ui/SocialIcon";
 
 export default function Footer() {
-  const [emailHovered, setEmailHovered] = useState(false)
+  const year = new Date().getFullYear();
 
   return (
-    <footer
-      style={{
-        padding: '64px clamp(24px,6vw,96px) 32px',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        background: 'transparent',
-        position: 'relative',
-      }}
-    >
-      {/* ROW 1 — Main grid */}
-      <div
-        className="footer-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr 1fr',
-          gap: 'clamp(32px,5vw,80px)',
-          alignItems: 'flex-start',
-        }}
-      >
-        {/* COL 1 — Logo + tagline + socials */}
-        <div className="footer-col1">
-          <img
-            src="/SB-Design-Logo-1-5.png"
-            alt="SB Design"
-            style={{ height: '32px', display: 'block' }}
-          />
-          <p
-            style={{
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 400,
-              fontSize: '14px',
-              color: 'rgba(255,255,255,0.35)',
-              lineHeight: 1.6,
-              maxWidth: '200px',
-              marginTop: '16px',
-              marginBottom: 0,
-            }}
-          >
-            Prémiové weby ktoré predávajú.
-          </p>
-          <div
-            style={{
-              display: 'flex',
-              gap: '8px',
-              marginTop: '20px',
-            }}
-          >
-            <SocialIcon href="#">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect
-                  x="2" y="2" width="12" height="12" rx="3.5"
-                  stroke="currentColor" strokeWidth="1.2"
-                />
-                <circle
-                  cx="8" cy="8" r="2.5"
-                  stroke="currentColor" strokeWidth="1.2"
-                />
-                <circle cx="11.2" cy="4.8" r="0.6" fill="currentColor" />
-              </svg>
-            </SocialIcon>
-            <SocialIcon href="#">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect
-                  x="2" y="2" width="12" height="12" rx="2"
-                  stroke="currentColor" strokeWidth="1.2"
-                />
-                <path
-                  d="M5 7v4M5 5.5v.01M8 11V8.5a1.5 1.5 0 013 0V11M8 7v4"
-                  stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"
-                />
-              </svg>
-            </SocialIcon>
-            <SocialIcon href="#">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect
-                  x="2" y="2" width="12" height="12" rx="2"
-                  stroke="currentColor" strokeWidth="1.2"
-                />
-                <path
-                  d="M9.5 5.5H8A1.5 1.5 0 006.5 7V11M9.5 8.5h-3"
-                  stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"
-                />
-              </svg>
-            </SocialIcon>
-          </div>
-        </div>
+    <footer className="relative overflow-hidden border-t border-line bg-ink-950">
+      {/* top accent line */}
+      <div aria-hidden className="absolute inset-x-0 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(47,107,255,0.5) 30%, rgba(24,214,255,0.5) 70%, transparent)" }} />
+      {/* ambient glow (static, no filter) */}
+      <div aria-hidden className="pointer-events-none absolute -top-48 left-1/2 h-96 w-[80%] -translate-x-1/2 opacity-30" style={{ background: "radial-gradient(ellipse at center, rgba(47,107,255,0.32), transparent 68%)" }} />
 
-        {/* COL 2 — Navigácia */}
-        <div>
-          <span style={labelStyle}>Navigácia</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {navLinks.map((link) => (
-              <NavLink key={link.label} href={link.href}>
-                {link.label}
-              </NavLink>
-            ))}
-          </div>
-        </div>
+      <div className="gutter relative pt-24 pb-9">
+        {/* ── main grid ── */}
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+          {/* brand */}
+          <div className="lg:col-span-5">
+            <Link href="/" aria-label="SB Design — domov" className="inline-flex items-center">
+              <Image src="/SB-Design-Logo-1-5.png" alt="SB Design" width={549} height={106} className="h-8 w-auto" />
+            </Link>
 
-        {/* COL 3 — Služby */}
-        <div>
-          <span style={labelStyle}>Služby</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {serviceLinks.map((link) => (
-              <NavLink key={link.label} href={link.href}>
-                {link.label}
-              </NavLink>
-            ))}
-          </div>
-        </div>
+            <p className="mt-6 max-w-xs text-[15px] leading-relaxed text-marble-dim">
+              Navrhujem a programujem prémiové weby a vediem kampane, ktoré z návštevníkov robia zákazníkov.
+            </p>
 
-        {/* COL 4 — Kontakt */}
-        <div>
-          <span style={labelStyle}>Kontakt</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {/* Email */}
-            <div>
-              <span
-                style={{
-                  fontFamily: 'monospace',
-                  fontSize: '8px',
-                  color: 'rgba(255,255,255,0.2)',
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase',
-                  display: 'block',
-                  marginBottom: '4px',
-                }}
-              >
-                Email
+            <div className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-line bg-ink-900/60 px-4 py-2">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-azure opacity-70 pulse-dot" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-azure" />
               </span>
-              <a
-                href="mailto:biben@sbdesign.sk"
-                onMouseEnter={() => setEmailHovered(true)}
-                onMouseLeave={() => setEmailHovered(false)}
-                style={{
-                  fontFamily: 'Syne, sans-serif',
-                  fontSize: '14px',
-                  color: emailHovered ? '#00D4FF' : 'rgba(255,255,255,0.5)',
-                  textDecoration: 'none',
-                  transition: 'color 0.2s',
-                }}
-              >
-                biben@sbdesign.sk
-              </a>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-marble-dim">Voľná kapacita — nové projekty</span>
             </div>
 
-            {/* Lokalita */}
-            <div>
-              <span
-                style={{
-                  fontFamily: 'monospace',
-                  fontSize: '8px',
-                  color: 'rgba(255,255,255,0.2)',
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase',
-                  display: 'block',
-                  marginBottom: '4px',
-                }}
-              >
-                Lokalita
-              </span>
-              <span
-                style={{
-                  fontFamily: 'Syne, sans-serif',
-                  fontSize: '14px',
-                  color: 'rgba(255,255,255,0.4)',
-                }}
-              >
-                Slovensko · Remote
-              </span>
-            </div>
-
-            {/* Dostupnosť */}
-            <div>
-              <span
-                style={{
-                  fontFamily: 'monospace',
-                  fontSize: '8px',
-                  color: 'rgba(255,255,255,0.2)',
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase',
-                  display: 'block',
-                  marginBottom: '4px',
-                }}
-              >
-                Dostupnosť
-              </span>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                <div
-                  style={{
-                    width: '5px',
-                    height: '5px',
-                    background: '#0057FF',
-                    borderRadius: '50%',
-                    flexShrink: 0,
-                  }}
-                />
-                <span
-                  style={{
-                    fontFamily: 'Syne, sans-serif',
-                    fontSize: '14px',
-                    color: 'rgba(255,255,255,0.5)',
-                  }}
+            <div className="mt-7 flex gap-3">
+              {socials.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="grid h-11 w-11 place-items-center rounded-full border border-line-strong text-marble-dim transition-all duration-300 hover:-translate-y-0.5 hover:border-azure hover:bg-azure/10 hover:text-white"
                 >
-                  Kapacita sa míňa
-                </span>
-              </div>
+                  <SocialIcon name={s.icon} />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* navigation */}
+          <div className="lg:col-span-3">
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-marble-muted">Navigácia</span>
+            <ul className="mt-6 flex flex-col gap-3.5">
+              {nav.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="group inline-flex items-center gap-2 text-[15px] text-marble-dim transition-colors duration-200 hover:text-marble">
+                    <span className="h-px w-4 origin-left scale-x-0 bg-azure transition-transform duration-300 group-hover:scale-x-100" />
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* contact */}
+          <div className="lg:col-span-4">
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-marble-muted">Spojme sa</span>
+            <a href={`mailto:${site.email}`} className="group mt-5 flex items-center justify-between gap-4 border-b border-line pb-4 transition-colors hover:border-azure">
+              <span className="font-display text-xl font-bold text-marble">{site.email}</span>
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-azure text-white transition-transform duration-500 group-hover:rotate-45">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 12L12 4M12 4H5.5M12 4v6.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </span>
+            </a>
+            <div className="mt-5 flex flex-col gap-2 text-[15px]">
+              <a href={site.phoneHref} className="text-marble-dim transition-colors hover:text-marble">{site.phone}</a>
+              <span className="text-marble-muted">{site.address}</span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ROW 2 — Divider */}
-      <div
-        style={{
-          height: '1px',
-          background:
-            'linear-gradient(to right, transparent, rgba(255,255,255,0.07) 20%, rgba(255,255,255,0.07) 80%, transparent)',
-          margin: '40px 0 24px',
-        }}
-      />
-
-      {/* ROW 3 — Bottom bar */}
-      <div
-        className="footer-bottom"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'monospace',
-            fontSize: '10px',
-            color: 'rgba(255,255,255,0.2)',
-            letterSpacing: '0.08em',
-          }}
-        >
-          ©2026 SB Design. Všetky práva vyhradené.
-        </span>
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          {[
-            { label: 'Ochrana osobných údajov', href: '/ochrana-osobnych-udajov' },
-            { label: 'Cookies', href: '/cookies' },
-          ].map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              style={{
-                fontFamily: 'monospace',
-                fontSize: '9px',
-                letterSpacing: '0.1em',
-                color: 'rgba(255,255,255,0.18)',
-                textDecoration: 'none',
-                transition: 'color 0.2s',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = 'rgba(255,255,255,0.18)')
-              }
-            >
-              {link.label}
-            </a>
-          ))}
+        {/* ── giant wordmark ── */}
+        <div className="relative mt-20 select-none">
+          {/* glow behind (static, no filter) */}
+          <div aria-hidden className="pointer-events-none absolute inset-x-[12%] bottom-[10%] top-[28%] opacity-30" style={{ background: "radial-gradient(ellipse 55% 75% at 50% 50%, rgba(47,107,255,0.24), transparent 68%)" }} />
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="wordmark-liquid relative mx-auto block w-fit whitespace-nowrap font-display font-extrabold leading-[0.85] tracking-[-0.05em]"
+            style={{ fontSize: "clamp(2rem, 10.3vw, 11rem)" }}
+          >
+            SB DESIGN
+          </motion.div>
         </div>
-        <span
-          style={{
-            fontFamily: 'monospace',
-            fontSize: '10px',
-            color: 'rgba(255,255,255,0.15)',
-          }}
-        >
-          Made with ♥ in Slovakia
-        </span>
-        <a
-          href="mailto:biben@sbdesign.sk"
-          style={{
-            fontFamily: 'monospace',
-            fontSize: '10px',
-            color: 'rgba(255,255,255,0.2)',
-            textDecoration: 'none',
-          }}
-        >
-          biben@sbdesign.sk
-        </a>
-      </div>
 
-      {/* Mobile styles */}
-      <style>{`
-        @media (max-width: 768px) {
-          .footer-grid {
-            grid-template-columns: 1fr 1fr !important;
-          }
-          .footer-col1 {
-            grid-column: 1 / -1;
-          }
-          .footer-bottom {
-            flex-direction: column !important;
-            align-items: center !important;
-            text-align: center;
-          }
-        }
-      `}</style>
+        {/* ── bottom bar ── */}
+        <div className="mt-10 flex flex-col items-center gap-5 border-t border-line pt-7 md:flex-row md:justify-between">
+          <span className="font-mono text-[11px] tracking-wide text-marble-muted">
+            © {year} {site.legalName}. Všetky práva vyhradené.
+          </span>
+
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {legalLinks.map((l) => (
+              <Link key={l.href} href={l.href} className="font-mono text-[11px] text-marble-muted transition-colors hover:text-marble-dim">
+                {l.label}
+              </Link>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="group inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.15em] text-marble-muted transition-colors hover:text-marble"
+          >
+            Hore
+            <span className="grid h-7 w-7 place-items-center rounded-full border border-line-strong transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-azure group-hover:text-azure">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </span>
+          </button>
+        </div>
+      </div>
     </footer>
-  )
+  );
 }

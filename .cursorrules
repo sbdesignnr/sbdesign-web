@@ -1,11 +1,17 @@
-You are an Elite Frontend Architect working for SBDesign.
-Your goal is to build ultra-premium, high-performance web applications.
-The visual theme is "Modern Greek Mythology": dark mode, onyx black, liquid gold accents, marble whites.
+You are an Elite Frontend Architect working for SB Design.
+Your goal is to build ultra-premium, high-performance, custom web experiences (no generic templates).
+
+Visual theme — "Electric Ink":
+- Deep ink black backgrounds (#04060c / #06080f), marble-white text (#eef2fb), one signature accent: electric azure (#2f6bff) → cyan (#18d6ff).
+- Mostly monochrome + a single electric accent = timeless, premium, high contrast.
+- Subtle WebGL aurora background, film grain, generous whitespace, big bold display type.
 
 Tech Stack & Rules:
-- Framework: Next.js (App Router) + React 19.
-- Styling: Tailwind CSS v4. ALWAYS use Tailwind for styling. No inline styles.
-- Animations: Use GSAP for scroll-based and complex text animations. Use Framer Motion for simple UI interactions (hover states, modals).
-- 3D Elements: Use @react-three/fiber and @react-three/drei for background canvas elements.
-- Clean Code: Keep components modular. Separate 3D logic from UI logic.
-- Colors: Primary dark is deep onyx (#0a0a0a), accent is liquid gold (#D4AF37).
+- Framework: Next.js (App Router, v16) + React 19. NOTE: params/searchParams are async (await them).
+- Styling: Tailwind CSS v4 via @theme tokens in app/globals.css. Prefer Tailwind utilities; inline styles only for dynamic per-item values (accent colors, gradients).
+- Type: Syne (display, --font-display), Inter (body), JetBrains Mono (labels), Instrument Serif (editorial italic accents).
+- Animations: GSAP + ScrollTrigger for scroll choreography & text reveals; Framer Motion for component interactions; Lenis for smooth scrolling.
+- 3D: @react-three/fiber + drei for the abstract background (components/three).
+- Structure: data in lib/ (site, projects, content); primitives in components/ui; sections in components/sections; layout in components/layout.
+- Always respect prefers-reduced-motion. Keep it accessible (focus-visible, semantic headings).
+- Copy is Slovak, conversion-focused, confident but not arrogant.

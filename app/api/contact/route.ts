@@ -13,16 +13,24 @@ const escapeHtml = (input: string): string =>
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, service, message } = (await req.json()) as {
+    const { name, email, service, message, consent } = (await req.json()) as {
       name?: string
       email?: string
       service?: string
       message?: string
+      consent?: boolean
     }
 
     if (!name || !email || !message) {
       return NextResponse.json(
         { error: 'Vyplňte všetky povinné polia.' },
+        { status: 400 }
+      )
+    }
+
+    if (!consent) {
+      return NextResponse.json(
+        { error: 'Pre odoslanie je potrebný súhlas so spracovaním osobných údajov.' },
         { status: 400 }
       )
     }
@@ -76,6 +84,17 @@ export async function POST(req: NextRequest) {
               <td style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
                          color: #fff; font-size: 16px;">
                 ${safeService}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+                         color: rgba(255,255,255,0.5); font-size: 11px;
+                         letter-spacing: 0.2em; text-transform: uppercase;">
+                Súhlas (marketing)
+              </td>
+              <td style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+                         color: #fff; font-size: 16px;">
+                ${consent ? 'Áno' : 'Nie'}
               </td>
             </tr>
             <tr>

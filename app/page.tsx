@@ -1,23 +1,25 @@
-import HeroSection from "@/components/sections/HeroSection";
-import StatementSection from "@/components/sections/StatementSection";
-import ServicesSection from "@/components/sections/ServicesSection";
-import FeaturedWorkSection from "@/components/sections/FeaturedWorkSection";
-import ProcessSection from "@/components/sections/ProcessSection";
-import ClosingSection from "@/components/sections/ClosingSection";
-import Footer from "@/components/layout/Footer";
+import Hero from "@/components/sections/Hero";
+import TrustBar from "@/components/sections/TrustBar";
+import Manifesto from "@/components/sections/Manifesto";
+import Services from "@/components/sections/Services";
+import SelectedWork from "@/components/sections/SelectedWork";
+import Stats from "@/components/sections/Stats";
+import Process from "@/components/sections/Process";
+import Testimonials from "@/components/sections/Testimonials";
+import CTASection from "@/components/sections/CTASection";
 
 export default function Home() {
   return (
-    <>
-      <main style={{ background: 'transparent' }}>
-        <HeroSection />
-        <StatementSection />
-        <ServicesSection />
-        <FeaturedWorkSection />
-        <ProcessSection />
-        <ClosingSection />
-      </main>
-      <Footer />
-    </>
+    <main>
+      <Hero />
+      <TrustBar />
+      <Manifesto />
+      <Services />
+      <SelectedWork />
+      <Stats />
+      <Process />
+      <Testimonials />
+      <CTASection />
+    </main>
   );
 }
