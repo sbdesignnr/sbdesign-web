@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import nodemailer from 'nodemailer'
 
 const escapeHtml = (input: string): string =>
   input
@@ -10,6 +8,16 @@ const escapeHtml = (input: string): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;')
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+})
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,9 +48,9 @@ export async function POST(req: NextRequest) {
     const safeService = escapeHtml(service || 'Nezadané')
     const safeMessage = escapeHtml(message).replace(/\n/g, '<br/>')
 
-    const { data, error } = await resend.emails.send({
-      from: 'SB Design Web <onboarding@resend.dev>',
-      to: ['biben@sbdesign.sk'],
+    const info = await transporter.sendMail({
+      from: `"SB Design" <${process.env.GMAIL_USER}>`,
+      to: 'biben@sbdesign.sk',
       replyTo: email,
       subject: `Nový dopyt — ${name} (${service || 'Nezadané'})`,
       html: `
@@ -120,11 +128,7 @@ export async function POST(req: NextRequest) {
       `,
     })
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
-
-    return NextResponse.json({ success: true, id: data?.id })
+    return NextResponse.json({ success: true, id: info.messageId })
   } catch {
     return NextResponse.json(
       { error: 'Nastala chyba. Skúste znova.' },
