@@ -149,11 +149,11 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
       {/* ── visual stage ── */}
       <div className="relative aspect-[16/10] overflow-hidden">
         <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(165deg, #0c1326, #06080f)" }} />
-        {/* orb glow (ambient, behind) */}
+        {/* orb glow (ambient, behind) — mäkký gradient, žiadny blur/spin (výkon) */}
         <div
           aria-hidden
-          className="absolute left-1/2 top-1/2 h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-45 blur-3xl spin-slow transition-all duration-700 group-hover:scale-110 group-hover:opacity-70"
-          style={{ background: `radial-gradient(circle, ${service.accent}, transparent 62%)` }}
+          className="absolute left-1/2 top-1/2 h-[85%] w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-50 transition-opacity duration-700 group-hover:opacity-75"
+          style={{ background: `radial-gradient(circle, ${service.accent}55 0%, ${service.accent}1f 38%, transparent 68%)` }}
         />
         {/* fine grid */}
         <div

@@ -7,15 +7,11 @@ import HeroShowreel from "./HeroShowreel";
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 function Word({ children, delay, className = "" }: { children: string; delay: number; className?: string }) {
+  // CSS reveal (server-rendered, spustí sa bez JS hydratácie → rýchle LCP)
   return (
-    <motion.span
-      className={`inline-block ${className}`}
-      initial={{ y: "40%", opacity: 0, filter: "blur(6px)" }}
-      animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-      transition={{ duration: 1, delay, ease: EASE }}
-    >
+    <span className={`hero-rise ${className}`} style={{ animationDelay: `${delay}s` }}>
       {children}
-    </motion.span>
+    </span>
   );
 }
 
@@ -67,22 +63,22 @@ export default function Hero() {
         {/* headline */}
         <h1 className="relative font-display font-extrabold tracking-[-0.035em]" style={{ textShadow: "0 2px 60px rgba(4,6,12,0.75)" }}>
           <span className="block leading-[0.98]" style={{ fontSize: "clamp(2.1rem, 5.6vw, 4.9rem)" }}>
-            <Word delay={0.25}>Krásne</Word> <Word delay={0.32}>weby,</Word> <Word delay={0.39}>ktoré</Word>
+            <Word delay={0.05}>Krásne</Word> <Word delay={0.1}>weby,</Word> <Word delay={0.15}>ktoré</Word>
           </span>
 
           {/* accent line */}
           <span className="relative my-1 block leading-[0.92]" style={{ fontSize: "clamp(2.5rem, 6.9vw, 5.9rem)" }}>
             <span
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[130%] w-[75%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70 blur-3xl"
-              style={{ background: "radial-gradient(ellipse, rgba(47,107,255,0.5), rgba(24,214,255,0.14) 45%, transparent 70%)" }}
+              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[130%] w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-70"
+              style={{ background: "radial-gradient(ellipse, rgba(47,107,255,0.45) 0%, rgba(24,214,255,0.12) 42%, transparent 70%)" }}
             />
-            <Word delay={0.5} className="font-serif italic text-gradient">predávajú</Word>
+            <Word delay={0.22} className="font-serif italic text-gradient">predávajú</Word>
             <span className="font-serif italic text-marble-muted" style={{ fontSize: "0.58em" }}>{" "}&amp;</span>
           </span>
 
           <span className="block leading-[0.98]" style={{ fontSize: "clamp(2.1rem, 5.6vw, 4.9rem)" }}>
-            <Word delay={0.74}>budujú</Word> <Word delay={0.84}>značku.</Word>
+            <Word delay={0.32}>budujú</Word> <Word delay={0.4}>značku.</Word>
           </span>
         </h1>
 

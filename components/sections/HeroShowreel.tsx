@@ -28,8 +28,10 @@ function Card({ src, eager }: { src: string; eager?: boolean }) {
         alt=""
         aria-hidden
         fill
-        sizes="30vw"
+        sizes="(max-width: 768px) 45vw, 30vw"
+        quality={45}
         priority={eager}
+        loading={eager ? undefined : "lazy"}
         className="object-cover object-top"
         draggable={false}
       />

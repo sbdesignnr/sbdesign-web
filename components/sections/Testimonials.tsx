@@ -21,7 +21,7 @@ const testimonials = [
     accent: "#2f6bff",
   },
   {
-    quote: "Vlastný portál nám vrátil kontrolu nad kontaktmi. Ponuky pridávame sami za pár minút.",
+    quote: "Maximálna spokojnosť s procesom tvorby webstránky starea.sk. Oceňujem najmä ochotu, ústretovosť a profesionalitu.",
     author: "STAREA Reality",
     role: "Realitná kancelária",
     accent: "#10b981",

@@ -303,6 +303,20 @@
 }
 @keyframes bc-spin { to { transform: rotate(360deg); } }
 
+/* Hero nadpis — CSS reveal (beží hneď pri načítaní, NEčaká na JS hydratáciu →
+   rýchle LCP). Len opacity + transform = kompozítor. */
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(26%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-rise {
+  display: inline-block;
+  animation: hero-rise 0.65s var(--ease-out-expo) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise { animation: none; }
+}
+
 /* Blog cover motifs animate ONLY on card hover (zero idle repaint → no scroll jank).
    Elements set their own transform-origin/transform-box + optional animation-delay inline. */
 .group:hover .bca-streak { animation: bc-streak 2.4s ease-in-out infinite; }

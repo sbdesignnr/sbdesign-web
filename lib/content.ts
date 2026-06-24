@@ -22,7 +22,7 @@ export const services: Service[] = [
     description:
       "Navrhujem a programujem weby, ktoré sa načítavajú za sekundu, vyzerajú výnimočne a predovšetkým predávajú. Každý pixel a každá animácia má dôvod — viesť návštevníka k akcii.",
     features: [
-      "Dizajn na mieru v Figme",
+      "Dizajn na mieru",
       "Custom kód alebo Next.js",
       "Animácie a interakcie",
       "PageSpeed 95+",
@@ -114,7 +114,7 @@ export const processSteps: ProcessStep[] = [
 ];
 
 export const stats = [
-  { value: "20+", label: "dokončených projektov" },
+  { value: "30+", label: "dokončených projektov" },
   { value: "98", label: "priemerné PageSpeed skóre" },
   { value: "3×", label: "priemerný nárast dopytov" },
   { value: "100%", label: "weby na mieru, žiadne šablóny" },
@@ -135,7 +135,7 @@ export const faqs = [
   },
   {
     q: "Budem si vedieť web spravovať sám?",
-    a: "Určite. Súčasťou dodania je školenie a 30-dňová podpora. Weby staviam tak, aby ste bežné úpravy zvládli bez programátora.",
+    a: "Záleží na našej dohode. Buď vám vytvorím vlastný CMS systém na mieru, cez ktorý si obsah webu jednoducho spravujete sami (súčasťou je školenie), alebo kompletnú správu webstránky preberiem na seba a vy sa venujete len svojmu biznisu.",
   },
   {
     q: "Postaráte sa aj o reklamu po spustení?",

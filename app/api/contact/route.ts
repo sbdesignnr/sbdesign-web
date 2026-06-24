@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 
+export const runtime = 'nodejs'
+
 const escapeHtml = (input: string): string =>
   input
     .replace(/&/g, '&amp;')
@@ -15,7 +17,8 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    // App Password sa z Googlu kopíruje s medzerami — tu ich odstránime
+    pass: (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, ''),
   },
 })
 
@@ -129,7 +132,8 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ success: true, id: info.messageId })
-  } catch {
+  } catch (err) {
+    console.error('Kontaktný formulár — chyba pri odoslaní e-mailu:', err)
     return NextResponse.json(
       { error: 'Nastala chyba. Skúste znova.' },
       { status: 500 }
