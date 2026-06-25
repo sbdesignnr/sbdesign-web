@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Syne, Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import { GoogleTagManager } from "@next/third-parties/google";
+import Script from "next/script";
 import "./globals.css";
 
 import { site } from "@/lib/site";
@@ -64,6 +65,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="sk" className={`${syne.variable} ${inter.variable} ${mono.variable} ${serif.variable}`}>
       {/* Google Tag Manager (script — vloží sa do <head> dokumentu) */}
       <GoogleTagManager gtmId="GTM-N278CRW6" />
+      {/* Google Ads (gtag.js) — vloží sa do <head> dokumentu */}
+      <Script
+        id="google-ads-src"
+        src="https://www.googletagmanager.com/gtag/js?id=AW-18267814679"
+        strategy="afterInteractive"
+        async
+      />
+      <Script id="google-ads-config" strategy="afterInteractive">
+        {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-18267814679');`}
+      </Script>
       <body className="antialiased">
         {/* Google Tag Manager (noscript fallback) */}
         <noscript>
