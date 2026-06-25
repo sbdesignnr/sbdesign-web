@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 const serviceOptions = ["Web na mieru", "E-shop", "Meta & Google Ads", "Kompletné riešenie", "Niečo iné"];
 const budgetOptions = ["do 1 500 €", "1 500 – 3 000 €", "3 000 – 6 000 €", "6 000 € +", "Zatiaľ neviem"];
 
-type Status = "idle" | "loading" | "success" | "error";
+type Status = "idle" | "loading" | "error";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -26,6 +27,7 @@ export default function ContactForm() {
   const [service, setService] = useState("Web na mieru");
   const [budget, setBudget] = useState(budgetOptions[1]);
   const [consent, setConsent] = useState(false);
+  const router = useRouter();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -49,7 +51,8 @@ export default function ContactForm() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Nastala chyba.");
-      setStatus("success");
+      // úspech → presmerovanie na ďakovnú stránku (GTM konverzia tam)
+      router.push("/dakujeme");
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Nastala chyba. Skúste znova.");
@@ -58,26 +61,7 @@ export default function ContactForm() {
 
   return (
     <div className="glass relative overflow-hidden rounded-2xl p-6 sm:p-9">
-      <AnimatePresence mode="wait">
-        {status === "success" ? (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex min-h-[420px] flex-col items-center justify-center text-center"
-          >
-            <span className="grid h-16 w-16 place-items-center rounded-full bg-azure">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-            <h3 className="mt-6 font-display text-3xl font-extrabold text-marble">Ďakujem!</h3>
-            <p className="mt-3 max-w-sm text-marble-dim">
-              Správa dorazila. Ozvem sa vám do 24 hodín — väčšinou oveľa skôr.
-            </p>
-          </motion.div>
-        ) : (
-          <motion.form key="form" onSubmit={onSubmit} className="flex flex-col gap-5" initial={{ opacity: 1 }}>
+      <motion.form onSubmit={onSubmit} className="flex flex-col gap-5" initial={{ opacity: 1 }}>
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Vaše meno *">
                 <input name="name" required placeholder="Ján Novák" className={inputClass} />
@@ -185,9 +169,7 @@ export default function ContactForm() {
                 </svg>
               )}
             </button>
-          </motion.form>
-        )}
-      </AnimatePresence>
+      </motion.form>
     </div>
   );
 }
