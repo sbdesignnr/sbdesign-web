@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Syne, Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
+import { GoogleTagManager } from "@next/third-parties/google";
 import "./globals.css";
 
 import { site } from "@/lib/site";
@@ -61,7 +62,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <html lang="sk" className={`${syne.variable} ${inter.variable} ${mono.variable} ${serif.variable}`}>
+      {/* Google Tag Manager (script — vloží sa do <head> dokumentu) */}
+      <GoogleTagManager gtmId="GTM-N278CRW6" />
       <body className="antialiased">
+        {/* Google Tag Manager (noscript fallback) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-N278CRW6"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <Background />
         <SmoothScroll>
