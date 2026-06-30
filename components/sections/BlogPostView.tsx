@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { type BlogPost, formatDateSk } from "@/lib/blog";
+import { site } from "@/lib/site";
 import Eyebrow from "@/components/ui/Eyebrow";
 import BlogCover from "@/components/sections/BlogCover";
+import BlogShare from "@/components/ui/BlogShare";
 import CTASection from "@/components/sections/CTASection";
 
 export default function BlogPostView({ post }: { post: BlogPost }) {
@@ -15,19 +17,22 @@ export default function BlogPostView({ post }: { post: BlogPost }) {
           style={{ background: "radial-gradient(ellipse 70% 55% at 50% 0%, rgba(47,107,255,0.14), transparent 72%)" }}
         />
         <div className="mx-auto max-w-[760px]">
-          <Link
-            href="/blog"
-            className="group inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.15em] text-marble-muted transition-colors hover:text-marble"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="transition-transform duration-300 group-hover:-translate-x-0.5">
-              <path d="M13.5 8h-10M7.5 4l-4 4 4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Všetky články
-          </Link>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+            <Link
+              href="/blog"
+              className="group inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.15em] text-marble-muted transition-colors hover:text-marble"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="transition-transform duration-300 group-hover:-translate-x-0.5">
+                <path d="M13.5 8h-10M7.5 4l-4 4 4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Všetky články
+            </Link>
+            <span aria-hidden className="hidden h-3.5 w-px bg-line-strong sm:block" />
+            <Eyebrow>{post.category}</Eyebrow>
+          </div>
 
-          <Eyebrow className="mb-5 mt-7">{post.category}</Eyebrow>
           <h1
-            className="font-display font-extrabold leading-[1.06] tracking-[-0.03em]"
+            className="mt-6 font-display font-extrabold leading-[1.06] tracking-[-0.03em]"
             style={{ fontSize: "clamp(1.75rem, 3.6vw, 2.85rem)" }}
           >
             {post.title}
@@ -48,7 +53,7 @@ export default function BlogPostView({ post }: { post: BlogPost }) {
       </section>
 
       {/* body */}
-      <article className="gutter pb-24">
+      <article className="gutter pb-12">
         <div className="mx-auto flex max-w-[760px] flex-col gap-7 text-[1.075rem] leading-[1.75] text-marble-dim">
           {post.sections.map((s, i) => (
             <div key={i} className="flex flex-col gap-4">
@@ -79,6 +84,13 @@ export default function BlogPostView({ post }: { post: BlogPost }) {
           ))}
         </div>
       </article>
+
+      {/* zdieľanie */}
+      <section className="gutter pb-24">
+        <div className="mx-auto max-w-[760px]">
+          <BlogShare url={`${site.url}/blog/${post.slug}`} />
+        </div>
+      </section>
 
       <CTASection
         eyebrow="Od slov k činom"
