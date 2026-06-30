@@ -90,9 +90,12 @@ function mapPost(api: ApiPost): BlogPost | null {
   };
 }
 
-async function fetchListSlugs(): Promise<string[]> {
+async function fetchListSlugs(opts?: { fresh?: boolean }): Promise<string[]> {
   try {
-    const res = await fetch(API_BASE, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(
+      API_BASE,
+      opts?.fresh ? { cache: "no-store" } : { next: { revalidate: REVALIDATE } },
+    );
     if (!res.ok) return [];
     const data = await res.json();
     const posts: ApiPost[] = Array.isArray(data?.posts) ? data.posts : [];
@@ -135,7 +138,9 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 
 /** Slugs for static generation: API slugs ∪ static seed slugs. */
 export async function getAllSlugs(): Promise<string[]> {
-  const slugs = new Set(await fetchListSlugs());
+  // Fresh fetch (bypass the Data Cache) so every build/deploy enumerates the
+  // current set of published articles for generateStaticParams.
+  const slugs = new Set(await fetchListSlugs({ fresh: true }));
   for (const p of staticPosts) slugs.add(p.slug);
   return [...slugs];
 }
