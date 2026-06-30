@@ -57,7 +57,7 @@ export const projects: Project[] = [
     image: "/projects/lubica.jpg",
     accent: "#ec4899",
     accent2: "#f9a8d4",
-    tagline: "Realitný web, ktorý si spravuje sám.",
+    tagline: "Realitný web, ktorý si spravuje sama.",
     summary:
       "Web realitnej kancelárie naprogramovaný od základov na mieru — s vlastnou aplikáciou, kde si klientka spravuje celú ponuku, a s automatizáciou, ktorá jej šetrí hodiny práce.",
     featured: true,
