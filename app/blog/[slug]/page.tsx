@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: `${post.title} — SB Design`,
       description: post.excerpt,
       publishedTime: post.date,
+      ...(post.imageUrl ? { images: [{ url: post.imageUrl, alt: post.imageAlt || post.title }] } : {}),
     },
   };
 }

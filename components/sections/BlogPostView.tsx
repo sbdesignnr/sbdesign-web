@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { type BlogPost, formatDateSk } from "@/lib/blog";
 import { site } from "@/lib/site";
 import Eyebrow from "@/components/ui/Eyebrow";
@@ -46,8 +47,19 @@ export default function BlogPostView({ post }: { post: BlogPost }) {
             <span>Samuel Bibeň</span>
           </div>
 
-          <div className="group mt-10 overflow-hidden rounded-2xl border border-line">
-            <BlogCover motif={post.motif} accent={post.accent} className="aspect-[16/7] w-full" />
+          <div className="group relative mt-10 aspect-[16/7] overflow-hidden rounded-2xl border border-line">
+            {post.imageUrl ? (
+              <Image
+                src={post.imageUrl}
+                alt={post.imageAlt || post.title}
+                fill
+                priority
+                sizes="(max-width: 760px) 100vw, 760px"
+                className="object-cover"
+              />
+            ) : (
+              <BlogCover motif={post.motif} accent={post.accent} className="h-full w-full" />
+            )}
           </div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { type BlogPost, formatDateSk } from "@/lib/blog";
 import BlogCover from "@/components/sections/BlogCover";
@@ -8,6 +9,18 @@ import BlogCover from "@/components/sections/BlogCover";
 const EASE = [0.16, 1, 0.3, 1] as const;
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.1 } } };
 const item = { hidden: { opacity: 0, y: 26 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } } };
+
+// Cover: real uploaded image when available, else the generated illustration.
+function Cover({ post, className, sizes }: { post: BlogPost; className?: string; sizes: string }) {
+  if (post.imageUrl) {
+    return (
+      <div className={`relative ${className ?? ""}`}>
+        <Image src={post.imageUrl} alt={post.imageAlt || post.title} fill sizes={sizes} className="object-cover" />
+      </div>
+    );
+  }
+  return <BlogCover motif={post.motif} accent={post.accent} className={className} />;
+}
 
 function Chip({ label, accent }: { label: string; accent: string }) {
   return (
@@ -52,7 +65,11 @@ function FeaturedCard({ post }: { post: BlogPost }) {
         className="group relative grid overflow-hidden rounded-3xl border border-line bg-ink-900/50 transition-[transform,border-color,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:border-azure/50 hover:shadow-[0_40px_90px_-50px_rgba(47,107,255,0.55)] lg:grid-cols-2"
       >
         <div className="relative">
-          <BlogCover motif={post.motif} accent={post.accent} className="aspect-[16/10] h-full w-full lg:aspect-auto lg:min-h-[340px]" />
+          <Cover
+            post={post}
+            className="aspect-[16/10] h-full w-full lg:aspect-auto lg:min-h-[340px]"
+            sizes="(max-width: 1024px) 100vw, 600px"
+          />
           <div className="absolute left-5 top-5 flex items-center gap-2">
             <Chip label={post.category} accent={post.accent} />
             <span className="rounded-full border border-line-strong bg-ink-950/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-marble-dim">
@@ -84,7 +101,7 @@ function Card({ post }: { post: BlogPost }) {
         className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-ink-900/50 transition-[transform,border-color,box-shadow] duration-500 ease-out hover:-translate-y-1.5 hover:border-azure/50 hover:shadow-[0_36px_80px_-50px_rgba(47,107,255,0.5)]"
       >
         <div className="relative">
-          <BlogCover motif={post.motif} accent={post.accent} className="aspect-[16/10] w-full" />
+          <Cover post={post} className="aspect-[16/10] w-full" sizes="(max-width: 640px) 100vw, 600px" />
           <div className="absolute left-4 top-4">
             <Chip label={post.category} accent={post.accent} />
           </div>

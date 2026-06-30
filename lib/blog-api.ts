@@ -23,6 +23,10 @@ interface ApiPost {
   meta_title?: string | null;
   metaDescription?: string | null;
   meta_description?: string | null;
+  imageUrl?: string | null;
+  image_url?: string | null;
+  imageAlt?: string | null;
+  image_alt?: string | null;
   category?: string | null;
   publishedAt?: string | null;
   published_at?: string | null;
@@ -76,6 +80,8 @@ function mapPost(api: ApiPost): BlogPost | null {
   const sections = markdownToSections(content);
   const metaDescription = pick(api.metaDescription, api.meta_description) ?? undefined;
   const { motif, accent } = categoryStyle(api.category);
+  const imageUrl = (pick(api.imageUrl, api.image_url) ?? "").trim() || undefined;
+  const imageAlt = (pick(api.imageAlt, api.image_alt) ?? "").trim() || undefined;
 
   return {
     slug,
@@ -86,6 +92,8 @@ function mapPost(api: ApiPost): BlogPost | null {
     readMinutes: Math.max(1, Math.round(wordCount(content) / 200)),
     accent,
     motif,
+    imageUrl,
+    imageAlt,
     sections,
   };
 }

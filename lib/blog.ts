@@ -21,6 +21,9 @@ export interface BlogPost {
   accent: string;
   /** Motív generovanej ilustrácie: "speed" | "blocks" | "ads". */
   motif: string;
+  /** Voliteľný cover obrázok z dashboardu (inak sa použije generovaná ilustrácia). */
+  imageUrl?: string;
+  imageAlt?: string;
   sections: BlogSection[];
 }
 
