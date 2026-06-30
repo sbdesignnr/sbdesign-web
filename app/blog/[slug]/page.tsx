@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPost, getBlogSlugs } from "@/lib/blog";
+import { getPostBySlug, getAllSlugs } from "@/lib/blog-api";
 import { site } from "@/lib/site";
 import BlogPostView from "@/components/sections/BlogPostView";
 
-export function generateStaticParams() {
-  return getBlogSlugs().map((slug) => ({ slug }));
+// Revalidate hourly (ISR); new slugs not generated at build render on-demand.
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return (await getAllSlugs()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await getPostBySlug(slug);
   if (!post) return { title: "Článok nenájdený" };
   return {
     title: post.title,
@@ -26,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
   const jsonLd = {
