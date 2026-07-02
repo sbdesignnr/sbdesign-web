@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Článok nenájdený" };
   const url = `${site.url}/blog/${post.slug}`;
-  const images = post.imageUrl ? [{ url: post.imageUrl, alt: post.imageAlt || post.title }] : undefined;
+  // OG/Twitter images come from the generated opengraph-image.tsx (branded, per post).
   return {
     title: post.title,
     description: post.excerpt,
@@ -28,13 +28,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: `${post.title} — SB Design`,
       description: post.excerpt,
       publishedTime: post.date,
-      ...(images ? { images } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      ...(images ? { images: images.map((i) => i.url) } : {}),
     },
   };
 }
