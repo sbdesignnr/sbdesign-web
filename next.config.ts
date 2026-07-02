@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
       { source: '/reklama-na-internete', destination: '/sluzby', permanent: true },
       // Old portfolio → projects
       { source: '/portfolio', destination: '/projekty', permanent: true },
+      // Old legal page name → current
+      { source: '/vseobecne-obchodne-podmienky', destination: '/obchodne-podmienky', permanent: true },
       // Old WordPress blog permalinks (root-level) → blog
       { source: '/ako-vytvorit-efektivnu-webstranku-ktora-naozaj-predava', destination: '/blog', permanent: true },
       { source: '/preco-vas-web-nepredava-5-chyb-ktore-vas-stoja-zakaznikov', destination: '/blog', permanent: true },
