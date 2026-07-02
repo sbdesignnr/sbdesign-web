@@ -69,11 +69,16 @@ export default function BlogPostView({ post }: { post: BlogPost }) {
         <div className="mx-auto flex max-w-[760px] flex-col gap-7 text-[1.075rem] leading-[1.75] text-marble-dim">
           {post.sections.map((s, i) => (
             <div key={i} className="flex flex-col gap-4">
-              {s.h && (
-                <h2 className="mt-7 font-display text-2xl font-bold tracking-tight text-marble md:text-[1.7rem]">
-                  {s.h}
-                </h2>
-              )}
+              {s.h &&
+                (s.hLevel === 3 ? (
+                  <h3 className="mt-5 font-display text-xl font-bold tracking-tight text-marble md:text-[1.35rem]">
+                    {s.h}
+                  </h3>
+                ) : (
+                  <h2 className="mt-7 font-display text-2xl font-bold tracking-tight text-marble md:text-[1.7rem]">
+                    {s.h}
+                  </h2>
+                ))}
               {s.p?.map((para, j) => (
                 <p key={`p${j}`}>{para}</p>
               ))}

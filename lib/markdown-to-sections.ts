@@ -76,7 +76,9 @@ export function markdownToSections(markdown: string): BlogSection[] {
 
   for (const block of blocks) {
     if (HEADING.test(block[0])) {
-      section = { h: stripInline(block[0].replace(HEADING, "")) };
+      // Preserve the heading level: H1/H2 → 2, H3+ → 3 (sub-section).
+      const hashes = block[0].match(/^#{1,6}/)?.[0].length ?? 2;
+      section = { h: stripInline(block[0].replace(HEADING, "")), hLevel: hashes >= 3 ? 3 : 2 };
       sections.push(section);
       continue;
     }

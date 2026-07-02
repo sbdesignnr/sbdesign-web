@@ -4,6 +4,7 @@
 
 export interface BlogSection {
   h?: string;
+  hLevel?: number; // 2 = H2 (default), 3 = H3 subsection — keeps heading hierarchy
   p?: string[];
   list?: string[];
   quote?: string;

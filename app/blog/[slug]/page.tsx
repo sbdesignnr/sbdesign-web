@@ -15,15 +15,26 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Článok nenájdený" };
+  const url = `${site.url}/blog/${post.slug}`;
+  const images = post.imageUrl ? [{ url: post.imageUrl, alt: post.imageAlt || post.title }] : undefined;
   return {
     title: post.title,
     description: post.excerpt,
+    // Per-post canonical — the primary fix so Google indexes one clean URL.
+    alternates: { canonical: url },
     openGraph: {
       type: "article",
+      url,
       title: `${post.title} — SB Design`,
       description: post.excerpt,
       publishedTime: post.date,
-      ...(post.imageUrl ? { images: [{ url: post.imageUrl, alt: post.imageAlt || post.title }] } : {}),
+      ...(images ? { images } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      ...(images ? { images: images.map((i) => i.url) } : {}),
     },
   };
 }
@@ -33,6 +44,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
+  const url = `${site.url}/blog/${post.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -40,14 +52,25 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     description: post.excerpt,
     datePublished: post.date,
     dateModified: post.date,
+    ...(post.imageUrl ? { image: post.imageUrl } : {}),
     author: { "@type": "Person", name: site.founder },
     publisher: { "@type": "Organization", name: site.name },
-    mainEntityOfPage: `${site.url}/blog/${post.slug}`,
+    mainEntityOfPage: url,
+  };
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Domov", item: site.url },
+      { "@type": "ListItem", position: 2, name: "Blog", item: `${site.url}/blog` },
+      { "@type": "ListItem", position: 3, name: post.title, item: url },
+    ],
   };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <BlogPostView post={post} />
     </>
   );
