@@ -8,6 +8,7 @@ export interface BlogSection {
   p?: string[];
   list?: string[];
   quote?: string;
+  table?: { headers: string[]; rows: string[][] };
 }
 
 export interface BlogPost {

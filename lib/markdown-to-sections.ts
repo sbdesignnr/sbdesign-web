@@ -14,6 +14,25 @@ import type { BlogSection } from "./blog";
 const HEADING = /^#{1,6}\s+/;
 const LIST_ITEM = /^\s*([-*+]|\d+\.)\s+/;
 const QUOTE = /^\s*>\s?/;
+// A GitHub-style table: a header row of pipes, then a --- separator row.
+const TABLE_SEP = /^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$/;
+
+function splitTableRow(line: string): string[] {
+  return line
+    .trim()
+    .replace(/^\||\|$/g, "")
+    .split("|")
+    .map((c) => c.trim());
+}
+
+function isTableBlock(block: string[]): boolean {
+  return (
+    block.length >= 2 &&
+    block[0].includes("|") &&
+    TABLE_SEP.test(block[1]) &&
+    block[1].includes("|")
+  );
+}
 
 /** Strip inline Markdown (bold/italic/code/links/images) down to plain text. */
 function stripInline(s: string): string {
@@ -83,6 +102,19 @@ export function markdownToSections(markdown: string): BlogSection[] {
       continue;
     }
 
+    if (isTableBlock(block)) {
+      const headers = splitTableRow(block[0]).map(stripInline);
+      const rows = block.slice(2).map((l) => splitTableRow(l).map(stripInline));
+      let s = ensure();
+      if (s.table || s.list || s.quote) {
+        s = {};
+        sections.push(s);
+        section = s;
+      }
+      s.table = { headers, rows };
+      continue;
+    }
+
     if (block.every((l) => LIST_ITEM.test(l))) {
       const items = block.map((l) => stripInline(l.replace(LIST_ITEM, "")));
       let s = ensure();
@@ -118,5 +150,5 @@ export function markdownToSections(markdown: string): BlogSection[] {
     (s.p ??= []).push(para);
   }
 
-  return sections.filter((s) => s.h || s.p?.length || s.list?.length || s.quote);
+  return sections.filter((s) => s.h || s.p?.length || s.list?.length || s.quote || s.table);
 }

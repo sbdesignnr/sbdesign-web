@@ -82,6 +82,35 @@ export default function BlogPostView({ post }: { post: BlogPost }) {
               {s.p?.map((para, j) => (
                 <p key={`p${j}`}>{para}</p>
               ))}
+              {s.table && (
+                <div className="my-2 overflow-x-auto rounded-xl border border-white/10">
+                  <table className="w-full border-collapse text-[0.95rem]">
+                    <thead>
+                      <tr className="bg-white/[0.04]">
+                        {s.table.headers.map((h, j) => (
+                          <th
+                            key={`th${j}`}
+                            className="border-b border-white/10 px-4 py-3 text-left font-semibold text-marble"
+                          >
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {s.table.rows.map((row, ri) => (
+                        <tr key={`tr${ri}`} className="border-b border-white/5 last:border-0">
+                          {row.map((cell, ci) => (
+                            <td key={`td${ci}`} className="px-4 py-3 align-top text-marble-dim">
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
               {s.list && (
                 <ul className="flex flex-col gap-3">
                   {s.list.map((it, j) => (
