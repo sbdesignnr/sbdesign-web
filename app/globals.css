@@ -426,3 +426,17 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Hero showreel — fade+scale bez framer-motion. Mountuje sa až po prvom
+   vykreslení, takže nesmie blokovať LCP; animácia beží na kompozítore. */
+@keyframes hero-reel-in {
+  from { opacity: 0; transform: scale(1.08); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.hero-reel-in {
+  animation: hero-reel-in 1.6s var(--ease-out-expo) both;
+  will-change: opacity, transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-reel-in { animation: none; }
+}

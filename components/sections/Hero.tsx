@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 import HeroShowreel from "./HeroShowreel";
@@ -16,17 +17,30 @@ function Word({ children, delay, className = "" }: { children: string; delay: nu
 }
 
 export default function Hero() {
+  // Showreel je dekoratívne pozadie (aria-hidden) z 24 screenshotov, navyše
+  // prekryté tmavými závojmi. Ak sa renderuje hneď, stane sa LCP prvkom a čaká
+  // na hydratáciu + stiahnutie obrázkov → LCP ~9 s. Domountujeme ho až keď je
+  // hlavné vlákno voľné; LCP prvkom tak zostane nadpis (text, žiadna sieť).
+  const [reelReady, setReelReady] = useState(false);
+  useEffect(() => {
+    const start = () => setReelReady(true);
+    const ric = typeof window !== "undefined" ? window.requestIdleCallback : undefined;
+    if (ric) {
+      const id = ric(start, { timeout: 2000 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(start, 600);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
-      {/* ── Layer 0 · cinematic showreel of real work ── */}
-      <motion.div
-        initial={{ opacity: 0, scale: 1.08 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2, ease: EASE }}
-        className="absolute inset-0"
-      >
-        <HeroShowreel />
-      </motion.div>
+      {/* ── Layer 0 · cinematic showreel (mimo kritickej cesty LCP) ── */}
+      {reelReady && (
+        <div className="hero-reel-in absolute inset-0">
+          <HeroShowreel />
+        </div>
+      )}
 
       {/* ── Layer 1 · darkening veils ── */}
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "rgba(4,6,12,0.5)" }} />

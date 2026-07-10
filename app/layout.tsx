@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Syne, Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
-import { GoogleTagManager } from "@next/third-parties/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -13,7 +12,7 @@ import CookieConsent from "@/components/ui/CookieConsent";
 
 const syne = Syne({ subsets: ["latin"], variable: "--font-syne", display: "swap", weight: ["500", "600", "700", "800"] });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["400", "500"] });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["400", "500"], preload: false });
 const serif = Instrument_Serif({ subsets: ["latin"], variable: "--font-instrument", display: "swap", weight: "400", style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
@@ -64,21 +63,26 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <html lang="sk" className={`${syne.variable} ${inter.variable} ${mono.variable} ${serif.variable}`}>
-      {/* Google Tag Manager (script — vloží sa do <head> dokumentu) */}
-      <GoogleTagManager gtmId="GTM-N278CRW6" />
-      {/* Google Ads (gtag.js) — vloží sa do <head> dokumentu */}
-      <Script
-        id="google-ads-src"
-        src="https://www.googletagmanager.com/gtag/js?id=AW-18267814679"
-        strategy="afterInteractive"
-        async
-      />
-      <Script id="google-ads-config" strategy="afterInteractive">
+      {/* GTM + Google Ads. `lazyOnload` = až po `load`, takže 420 kB analytiky
+          nesúťaží s hydratáciou a nezdržuje LCP. Meranie ani konverzie tým
+          neprichádzajú — dataLayer sa plní hneď a GTM ho po štarte spracuje. */}
+      <Script id="gtm-init" strategy="beforeInteractive">
         {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'AW-18267814679');`}
       </Script>
+      <Script id="gtm-loader" strategy="lazyOnload">
+        {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-N278CRW6');`}
+      </Script>
+      <Script
+        id="google-ads-src"
+        src="https://www.googletagmanager.com/gtag/js?id=AW-18267814679"
+        strategy="lazyOnload"
+      />
       <body className="antialiased">
         {/* Google Tag Manager (noscript fallback) */}
         <noscript>

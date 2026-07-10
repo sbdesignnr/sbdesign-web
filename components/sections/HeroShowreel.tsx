@@ -20,7 +20,7 @@ const columns: { items: string[]; dur: number; dir: "up" | "down" }[] = [
   { items: [shots[6], shots[4], shots[2], shots[1]], dur: 78, dir: "up" },
 ];
 
-function Card({ src, eager }: { src: string; eager?: boolean }) {
+function Card({ src }: { src: string }) {
   return (
     <div className="relative mb-6 aspect-[16/10] w-full overflow-hidden rounded-xl border border-white/10 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.9)]">
       <Image
@@ -30,8 +30,7 @@ function Card({ src, eager }: { src: string; eager?: boolean }) {
         fill
         sizes="(max-width: 768px) 45vw, 30vw"
         quality={45}
-        priority={eager}
-        loading={eager ? undefined : "lazy"}
+        loading="lazy"
         className="object-cover object-top"
         draggable={false}
       />
@@ -74,7 +73,7 @@ export default function HeroShowreel() {
                 style={{ ["--vdur" as string]: `${col.dur}s`, animationPlayState: running ? "running" : "paused" }}
               >
                 {[...col.items, ...col.items].map((src, i) => (
-                  <Card key={`${ci}-${i}`} src={src} eager={ci === 0 && i === 0} />
+                  <Card key={`${ci}-${i}`} src={src} />
                 ))}
               </div>
             </div>
