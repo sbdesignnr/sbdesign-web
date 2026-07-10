@@ -12,7 +12,7 @@ const description =
   "Praktické články o weboch, dizajne a online marketingu. Tipy a poznatky, ktoré firmám pomáhajú získať viac zákazníkov — SB Design, Nitra.";
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: { absolute: "Blog o webdizajne, SEO a online marketingu | SB Design" },
   description,
   alternates: {
     canonical: `${site.url}/blog`,

@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Ochrana osobných údajov",
   description: "Zásady ochrany osobných údajov (GDPR) — SB Design, Samuel Bibeň.",
   robots: { index: false, follow: true },
+  alternates: { canonical: "/ochrana-osobnych-udajov" },
 };
 
 export default function PrivacyPage() {

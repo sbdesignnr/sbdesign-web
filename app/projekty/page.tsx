@@ -5,9 +5,10 @@ import ProjectsGrid from "@/components/sections/ProjectsGrid";
 import CTASection from "@/components/sections/CTASection";
 
 export const metadata: Metadata = {
-  title: "Projekty",
+  title: { absolute: "Portfólio webstránok a case studies | SB Design Nitra" },
   description:
     "Vybrané projekty SB Design — weby na mieru, e-shopy a značky, ktoré prinášajú reálne výsledky. Pozrite si case studies.",
+  alternates: { canonical: "/projekty" },
 };
 
 export default function ProjektyPage() {

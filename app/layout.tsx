@@ -36,7 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: `${site.name} — ${site.tagline}`, description: site.shortPitch },
   robots: { index: true, follow: true },
-  alternates: { canonical: site.url },
+  // POZOR: žiadny canonical tu — root metadata dedia VŠETKY podstránky a každá
+  // by potom tvrdila, že je duplikát homepage. Canonical patrí do každej stránky.
 };
 
 export const viewport: Viewport = {
