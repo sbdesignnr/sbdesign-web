@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Zásady používania cookies",
   description: "Informácie o používaní súborov cookies na webe SB Design.",
   robots: { index: false, follow: true },
+  alternates: { canonical: "/cookies" },
 };
 
 export default function CookiesPage() {

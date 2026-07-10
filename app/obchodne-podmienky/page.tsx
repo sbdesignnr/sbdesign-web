@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Obchodné podmienky",
   description: "Všeobecné obchodné podmienky — SB Design, Samuel Bibeň.",
   robots: { index: false, follow: true },
+  alternates: { canonical: "/obchodne-podmienky" },
 };
 
 export default function TermsPage() {

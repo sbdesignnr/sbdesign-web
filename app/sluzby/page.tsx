@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: "Služby",
   description:
     "Weby na mieru, e-shopy a výkonnostný marketing (Meta & Google Ads). Prémiové digitálne riešenia od SB Design, ktoré prinášajú výsledky.",
+  alternates: { canonical: "/sluzby" },
 };
 
 export default function SluzbyPage() {

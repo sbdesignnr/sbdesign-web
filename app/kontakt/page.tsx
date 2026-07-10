@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Kontakt",
   description:
     "Napíšte mi o vašom projekte. Bezplatná konzultácia, jasná cenová ponuka a odpoveď do 24 hodín. SB Design — Nitra.",
+  alternates: { canonical: "/kontakt" },
 };
 
 export default function KontaktPage() {

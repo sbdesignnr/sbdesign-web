@@ -13,6 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!project) return { title: "Projekt nenájdený" };
   return {
     title: `${project.title} — Case study`,
+    alternates: { canonical: `/projekty/${slug}` },
     description: project.summary,
     openGraph: {
       title: `${project.title} — SB Design`,

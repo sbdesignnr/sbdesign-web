@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Projekty",
   description:
     "Vybrané projekty SB Design — weby na mieru, e-shopy a značky, ktoré prinášajú reálne výsledky. Pozrite si case studies.",
+  alternates: { canonical: "/projekty" },
 };
 
 export default function ProjektyPage() {
