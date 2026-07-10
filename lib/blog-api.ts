@@ -79,6 +79,7 @@ function mapPost(api: ApiPost): BlogPost | null {
   const content = api.content ?? "";
   const sections = markdownToSections(content);
   const metaDescription = pick(api.metaDescription, api.meta_description) ?? undefined;
+  const metaTitle = (pick(api.metaTitle, api.meta_title) ?? "").trim() || undefined;
   const { motif, accent } = categoryStyle(api.category);
   const imageUrl = (pick(api.imageUrl, api.image_url) ?? "").trim() || undefined;
   const imageAlt = (pick(api.imageAlt, api.image_alt) ?? "").trim() || undefined;
@@ -94,6 +95,7 @@ function mapPost(api: ApiPost): BlogPost | null {
     motif,
     imageUrl,
     imageAlt,
+    metaTitle,
     sections,
   };
 }

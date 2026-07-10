@@ -18,7 +18,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const url = `${site.url}/blog/${post.slug}`;
   // OG/Twitter images come from the generated opengraph-image.tsx (branded, per post).
   return {
-    title: post.title,
+    // `title` je H1 článku (často 90+ znakov). Google odreže ~60, preto ide do
+    // <title> kratší metaTitle z dashboardu. `absolute` zabráni tomu, aby šablóna
+    // z layoutu pripojila značku druhýkrát.
+    title: { absolute: post.metaTitle ?? `${post.title} — ${site.name}` },
     description: post.excerpt,
     // Per-post canonical — the primary fix so Google indexes one clean URL.
     alternates: { canonical: url },

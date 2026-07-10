@@ -26,6 +26,8 @@ export interface BlogPost {
   /** Voliteľný cover obrázok z dashboardu (inak sa použije generovaná ilustrácia). */
   imageUrl?: string;
   imageAlt?: string;
+  /** SEO title z dashboardu (kratší než H1); fallback je `title`. */
+  metaTitle?: string;
   sections: BlogSection[];
 }
 
