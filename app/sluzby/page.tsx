@@ -6,7 +6,7 @@ import FAQ from "@/components/sections/FAQ";
 import CTASection from "@/components/sections/CTASection";
 
 export const metadata: Metadata = {
-  title: "Služby",
+  title: { absolute: "Tvorba webstránok a online marketing | SB Design Nitra" },
   description:
     "Weby na mieru, e-shopy a výkonnostný marketing (Meta & Google Ads). Prémiové digitálne riešenia od SB Design, ktoré prinášajú výsledky.",
   alternates: { canonical: "/sluzby" },

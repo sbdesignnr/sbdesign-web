@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import ContactView from "@/components/sections/ContactView";
 
 export const metadata: Metadata = {
-  title: "Kontakt",
+  title: { absolute: "Kontakt | Nezáväzná konzultácia — SB Design Nitra" },
   description:
     "Napíšte mi o vašom projekte. Bezplatná konzultácia, jasná cenová ponuka a odpoveď do 24 hodín. SB Design — Nitra.",
   alternates: { canonical: "/kontakt" },
