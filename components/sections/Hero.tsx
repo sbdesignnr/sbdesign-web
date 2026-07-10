@@ -17,14 +17,17 @@ function Word({ children, delay, className = "" }: { children: string; delay: nu
 }
 
 export default function Hero() {
-  // Showreel je dekoratívne pozadie (aria-hidden) z 24 screenshotov, navyše
-  // prekryté tmavými závojmi. Ak sa renderuje hneď, stane sa LCP prvkom a čaká
-  // na hydratáciu + stiahnutie obrázkov → LCP ~9 s. Domountujeme ho až keď je
-  // hlavné vlákno voľné; LCP prvkom tak zostane nadpis (text, žiadna sieť).
+  // Showreel = 24 dekoratívnych screenshotov (aria-hidden) pod tmavými závojmi.
+  // Obrázok je LCP kandidát aj keď je aria-hidden, takže na mobile sa showreel
+  // vždy stal LCP prvkom (~9-10 s) — odloženie mountu to len zhoršilo. Na telefóne
+  // ho pod závojmi aj tak takmer nevidno, tak ho tam nerenderujeme vôbec; LCP
+  // prvkom je potom nadpis (text, CSS reveal, žiadna sieť ani JS).
+  // Na desktope ho domountujeme, až keď je hlavné vlákno voľné.
   const [reelReady, setReelReady] = useState(false);
   useEffect(() => {
+    if (!window.matchMedia("(min-width: 768px)").matches) return;
     const start = () => setReelReady(true);
-    const ric = typeof window !== "undefined" ? window.requestIdleCallback : undefined;
+    const ric = window.requestIdleCallback;
     if (ric) {
       const id = ric(start, { timeout: 2000 });
       return () => window.cancelIdleCallback?.(id);
