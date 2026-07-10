@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 import HeroShowreel from "./HeroShowreel";
-
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 function Word({ children, delay, className = "" }: { children: string; delay: number; className?: string }) {
   // CSS reveal (server-rendered, spustí sa bez JS hydratácie → rýchle LCP)
@@ -66,16 +63,11 @@ export default function Hero() {
       {/* ── Layer 3 · content ── */}
       <div className="relative z-10 mx-auto w-full max-w-4xl gutter text-center">
         {/* eyebrow */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
-          className="mb-9 flex items-center justify-center gap-3"
-        >
+        <div className="hero-fade mb-9 flex items-center justify-center gap-3" style={{ animationDelay: "0.05s" }}>
           <span className="h-px w-10 bg-gradient-to-r from-transparent to-azure/60" />
           <span className="label text-marble-dim">Digitálne štúdio — Nitra</span>
           <span className="h-px w-10 bg-gradient-to-l from-transparent to-azure/60" />
-        </motion.div>
+        </div>
 
         {/* headline */}
         <h1 className="relative font-display font-extrabold tracking-[-0.035em]" style={{ textShadow: "0 2px 60px rgba(4,6,12,0.75)" }}>
@@ -100,26 +92,21 @@ export default function Hero() {
         </h1>
 
         {/* sub */}
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.05, ease: EASE }}
-          className="mx-auto mt-8 max-w-xl text-[clamp(1rem,1.3vw,1.2rem)] leading-relaxed text-marble-dim"
+        {/* LCP prvok: najväčší textový blok v hero. Musí ho vykresliť CSS, nie
+            framer-motion — inak čaká na hydratáciu a LCP vyletí na 5+ s. */}
+        <p
+          className="hero-fade mx-auto mt-8 max-w-xl text-[clamp(1rem,1.3vw,1.2rem)] leading-relaxed text-marble-dim"
+          style={{ animationDelay: "0.35s" }}
         >
           Navrhujem a programujem prémiové weby na mieru a vediem výkonnostné kampane, ktoré z návštevníkov robia
           zákazníkov.
-        </motion.p>
+        </p>
 
         {/* CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.2, ease: EASE }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-4"
-        >
+        <div className="hero-fade mt-10 flex flex-wrap items-center justify-center gap-4" style={{ animationDelay: "0.5s" }}>
           <Button href="/kontakt" size="lg" cursorLabel="Poďme do toho">Začať projekt</Button>
           <Button href="/projekty" variant="outline" size="lg" arrow={false} cursorLabel="Pozri">Pozrieť projekty</Button>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -440,3 +440,15 @@
 @media (prefers-reduced-motion: reduce) {
   .hero-reel-in { animation: none; }
 }
+
+/* Hero eyebrow / podnadpis / CTA — CSS reveal. Podnadpis je LCP prvok (najväčší
+   textový blok), takže sa NESMIE vykresľovať cez framer-motion: to by čakalo na
+   hydratáciu a posunulo LCP o niekoľko sekúnd. */
+@keyframes hero-fade {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+.hero-fade { animation: hero-fade 0.9s var(--ease-out-expo) both; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade { animation: none; }
+}
