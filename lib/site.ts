@@ -31,9 +31,8 @@ export const nav: { label: string; href: string }[] = [
 ];
 
 export const socials = [
-  { label: "Instagram", href: "https://www.instagram.com", handle: "@sbdesign", icon: "instagram" },
-  { label: "Facebook", href: "https://www.facebook.com", handle: "SB Design", icon: "facebook" },
-  { label: "LinkedIn", href: "https://www.linkedin.com", handle: "Samuel Bibeň", icon: "linkedin" },
+  { label: "Instagram", href: "https://www.instagram.com/sbdesign.sk/", handle: "@sbdesign.sk", icon: "instagram" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/samuel-bibe%C5%88-437785421/", handle: "Samuel Bibeň", icon: "linkedin" },
 ] as const;
 
 export const legalLinks = [
