@@ -30,6 +30,8 @@ export const nav: { label: string; href: string }[] = [
   { label: "Kontakt", href: "/kontakt" },
 ];
 
+export const googleBusinessUrl = "https://share.google/15im0D8gXMCuBLqqU";
+
 export const socials = [
   { label: "Instagram", href: "https://www.instagram.com/sbdesign.sk/", handle: "@sbdesign.sk", icon: "instagram" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/samuel-bibe%C5%88-437785421/", handle: "Samuel Bibeň", icon: "linkedin" },
