@@ -65,6 +65,12 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href="/marketingova-agentura-nitra" className="group inline-flex items-center gap-2 text-[15px] text-marble-dim transition-colors duration-200 hover:text-marble">
+                  <span className="h-px w-4 origin-left scale-x-0 bg-azure transition-transform duration-300 group-hover:scale-x-100" />
+                  Marketingová agentúra Nitra
+                </Link>
+              </li>
             </ul>
           </div>
 
