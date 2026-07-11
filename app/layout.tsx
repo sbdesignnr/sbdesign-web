@@ -3,7 +3,7 @@ import { Syne, Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google"
 import Script from "next/script";
 import "./globals.css";
 
-import { site } from "@/lib/site";
+import { site, socials } from "@/lib/site";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import Background from "@/components/three/Background";
 import Header from "@/components/layout/Header";
@@ -59,6 +59,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     geo: { "@type": "GeoCoordinates", latitude: site.geo.lat, longitude: site.geo.lng },
     areaServed: "SK",
     priceRange: "€€",
+    // sameAs prepája web s oficiálnymi profilmi firmy — Google tak potvrdí, že je
+    // to tá istá entita (posilňuje značku + lokálne SEO). Odvodené zo `socials`,
+    // nech to ostane v synchrone s pätičkou.
+    sameAs: socials.map((s) => s.href),
   };
 
   return (
