@@ -272,10 +272,40 @@ export const projects: Project[] = [
       },
     ],
     deliverables: ["UX/UI dizajn", "Vývoj", "Portfólio realizácií", "SEO základ"],
-    next: "propsyche",
+    next: "vytahy-barborik",
   },
 
   // ── ĎALŠIE PROJEKTY ───────────────────────────────────────────────────────
+  {
+    slug: "vytahy-barborik",
+    title: "Výťahy Barborík",
+    client: "Výťahy Barborík",
+    category: "Výťahy a servis",
+    discipline: ["Web na mieru", "Dizajn", "Vývoj"],
+    year: "2026",
+    url: "https://vytahybarborik.sk",
+    liveLabel: "vytahybarborik.sk",
+    image: "/projects/vytahy-barborik.jpg",
+    accent: "#e8a838",
+    accent2: "#f5c869",
+    tagline: "Zlatý štandard servisu výťahov.",
+    summary:
+      "Web pre servis a modernizáciu výťahov v Nitre — stavia na 30-ročnej tradícii a férovej cene, buduje dôveru správcov a bytových družstiev a vedie ich k technickej obhliadke.",
+    featured: false,
+    industry: "Technické služby",
+    timeline: "Web na mieru",
+    role: "Dizajn, vývoj",
+    stack: ["Web na mieru", "Responzívny dizajn", "SEO"],
+    metrics: [
+      { value: "30+", label: "rokov praxe", sub: "v Nitrianskom kraji" },
+      { value: "24/7", label: "havarijná služba" },
+      { value: "1994", label: "tradícia od roku" },
+    ],
+    intro:
+      "Servis výťahov stojí na dôvere a bezpečnosti. Web musel presvedčiť správcov a bytové družstvá, že rodinná firma s 30-ročnou praxou dodá korporátnu kvalitu za férovú cenu — a plynulo ich doviesť k technickej obhliadke.",
+    deliverables: ["UX/UI dizajn", "Vývoj na mieru", "Copywriting", "SEO základ"],
+    next: "propsyche",
+  },
   {
     slug: "propsyche",
     title: "ProPsyché",
