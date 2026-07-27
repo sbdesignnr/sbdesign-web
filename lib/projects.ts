@@ -46,6 +46,59 @@ export interface Project {
 export const projects: Project[] = [
   // ── FEATURED ──────────────────────────────────────────────────────────────
   {
+    slug: "anima-residences",
+    title: "Anima Residences",
+    client: "Anima Residences",
+    category: "Rezidenčný development",
+    discipline: ["Web na mieru", "Dizajn", "Vývoj", "Interaktívne animácie"],
+    year: "2026",
+    url: "https://www.animaresidences.sk",
+    liveLabel: "animaresidences.sk",
+    image: "/projects/anima-residences.jpg",
+    accent: "#c2a05c",
+    accent2: "#e8d4a0",
+    tagline: "Web, ktorý sa stavia pred vašimi očami.",
+    summary:
+      "Prémiový web pre rezidenčný projekt v Nitre — budova sa pri scrolle stavia od základov, návštevník si interaktívne vyberie poschodie a z pôdorysu konkrétny byt.",
+    featured: true,
+    industry: "Development",
+    timeline: "Web na mieru",
+    role: "Dizajn, vývoj, interaktívne animácie",
+    stack: ["Next.js", "Interaktívne animácie", "Responzívny dizajn"],
+    metrics: [
+      { value: "100%", label: "web na mieru", sub: "od základov" },
+      { value: "Scroll", label: "budova sa stavia", sub: "animácia výstavby" },
+      { value: "1:1", label: "výber bytu", sub: "poschodie + pôdorys" },
+    ],
+    intro:
+      "Developerský projekt na Smetanovej ulici v Nitre potreboval web na úrovni samotnej rezidencie — prémiový a elegantný, ktorý z prehliadania spraví zážitok a z návštevníka rezervujúceho klienta.",
+    blocks: [
+      {
+        kicker: "Výzva",
+        title: "Predať byt, ktorý ešte nestojí",
+        body: "Pri novostavbe kupuje klient víziu. Web musel túto víziu spraviť hmatateľnou — ukázať budovu, lokalitu aj konkrétny byt tak presvedčivo, aby si ho záujemca vedel predstaviť ako svoj domov ešte pred výstavbou.",
+      },
+      {
+        kicker: "Prístup",
+        title: "Rezidencia, ktorá ožíva pri scrolle",
+        body: "Navrhol som vznešený vizuál so zlatými akcentmi a serif typografiou. Kľúčovým momentom je scrollovacia animácia, počas ktorej sa budova stavia od základov až po finálnu podobu — návštevník doslova sleduje, ako rezidencia vzniká.",
+      },
+      {
+        kicker: "Riešenie",
+        title: "Od poschodia ku konkrétnemu bytu",
+        body: "Postavil som interaktívny výber bývania na mieru: návštevník prechádza budovou, vybrané poschodie sa mu podfarbí a po kliknutí sa z pôdorysu dostane k jednotlivým bytom. Cesta od záujmu k rezervácii je plynulá a intuitívna.",
+      },
+    ],
+    deliverables: [
+      "Web na mieru postavený od základov",
+      "Scrollovacia animácia výstavby budovy",
+      "Interaktívny výber poschodia a bytu z pôdorysu",
+      "UX/UI dizajn a copywriting",
+      "Responzívny dizajn a optimalizácia",
+    ],
+    next: "lubica-bibenova",
+  },
+  {
     slug: "lubica-bibenova",
     title: "Ľubica Bibeňová",
     client: "Ľubica Bibeňová — reality",
@@ -504,7 +557,7 @@ export const projects: Project[] = [
     role: "Dizajn, vývoj",
     stack: ["Web na mieru", "Responzívny dizajn", "SEO"],
     deliverables: ["UX/UI dizajn", "Vývoj", "Konverzný copywriting"],
-    next: "lubica-bibenova",
+    next: "anima-residences",
   },
 ];
 
