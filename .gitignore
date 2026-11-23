@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Nástrojová konfigurácia, nie práca na projekte
+.claude/
+
+# Klientske a leadové dáta: osobné údaje skutočných ľudí.
+# Do repozitára nepatria ani v súkromnom – zdieľa sa a klonuje.
+*.xlsx
+~$*
